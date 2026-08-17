@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+pytest
+passlib[bcrypt]
+bcrypt<4.1
+PyJWT
+alembic

@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Cashflow",
+    "slug": "cash-flow-simulator",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "cashflow",
+    "ios": {
+      "supportsTablet": true,
+      	"bundleIdentifier": "com.developerfromspace.cashflow",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#38654C"
+      }
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-font",
+      "expo-dev-client"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "c065f68a-df80-426d-b9af-2c4c2f4939b6"
+      }
+    }
+  }
+}

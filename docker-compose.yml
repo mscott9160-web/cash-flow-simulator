@@ -1,0 +1,26 @@
+services:
+  backend:
+    build: .
+    environment:
+      DATABASE_PATH: ${DATABASE_PATH:-/data/cashflow.db}
+      AUTH_SECRET: ${AUTH_SECRET:-local-compose-secret-change-me}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+    ports:
+      - "8000:8000"
+    volumes:
+      - cashflow-data:/data
+  web:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - web-node-modules:/app/node_modules
+    depends_on:
+      - backend
+volumes:
+  cashflow-data:
+  web-node-modules:
