@@ -1,24 +1,42 @@
-# Cashflow mobile client
+# Cashflow Mobile
 
-This is the first Expo client for the Cashflow Simulator. It uses the existing FastAPI auth, saved account, projection, income, and bill endpoints. Mobile optimizer Apply/Undo is intentionally deferred; the projection is read-only and recommendations remain advisory in the API.
+Expo React Native client for the Cashflow Simulator API.
 
-## Run locally
+## Features
 
-From `mobile/`, install dependencies and start Expo:
+- Login and registration
+- Secure token storage with `expo-secure-store`
+- Starting account setup
+- Daily projection dashboard
+- Negative-day summary
+- Optimizer recommendation with hypothetical Apply/Undo
+- Add, edit, pause, resume, and delete income and bills
+
+## Local Development
 
 ```powershell
+cd mobile
 npm install
-$env:EXPO_PUBLIC_API_URL = 'http://localhost:8000'
-npm start
+$env:EXPO_PUBLIC_API_URL = 'http://192.168.1.183:8000'
+npx expo start --dev-client --lan
 ```
 
-Use `npm run android` or `npm run ios` after starting if a simulator is installed. On a physical device, set `EXPO_PUBLIC_API_URL` to the host machine's LAN address and allow that origin in the backend's `CORS_ORIGINS` setting when needed.
+The mobile project uses Expo SDK 57 and an Expo development build. For a physical iPhone, use the host computer's LAN IP and keep both devices on the same Wi-Fi network.
+
+## Build A Development Client
+
+```powershell
+npx eas build --platform ios --profile development
+```
+
+Install the resulting development build on the registered device, then run Metro with `npx expo start --dev-client --lan`.
 
 ## Checks
 
 ```powershell
 npm run typecheck
+npx expo-doctor
 npm run export
 ```
 
-The app stores the bearer token and selected account ID in `expo-secure-store`. A newly authenticated user is asked for a starting balance and as-of date once, then returns to the saved projection on later launches.
+The app stores the bearer token and selected account ID in `expo-secure-store`. Financial recommendations remain hypothetical schedule changes; the app does not initiate real payments.
