@@ -12,6 +12,9 @@ if config.config_file_name is not None:
 
 
 def database_url() -> str:
+    configured_url = os.getenv("DATABASE_URL", "").strip()
+    if configured_url:
+        return configured_url
     configured_path = os.getenv("DATABASE_PATH", "cashflow.db").strip() or "cashflow.db"
     if configured_path.startswith("sqlite:"):
         return configured_path

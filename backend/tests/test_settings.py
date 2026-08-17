@@ -20,6 +20,15 @@ def test_settings_parse_database_path_and_origins(monkeypatch):
     assert settings.cors_origins == ("http://localhost:3000", "https://app.example.com")
 
 
+def test_settings_parse_database_url(monkeypatch):
+    monkeypatch.setenv("DATABASE_URL", " postgresql+psycopg://cashflow:secret@localhost/cashflow ")
+
+    settings = Settings.from_environment()
+
+    assert settings.database_url == "postgresql+psycopg://cashflow:secret@localhost/cashflow"
+    assert settings.database_path == "cashflow.db"
+
+
 def test_settings_reject_wildcard_cors_origin(monkeypatch):
     monkeypatch.setenv("CORS_ORIGINS", "*")
 

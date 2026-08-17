@@ -120,9 +120,11 @@ The current checkpoint has 38 backend tests passing, a passing Playwright critic
 - Reversible override create/list/delete endpoints
 - Public `GET /health` and `GET /ready`
 
-## Operational Notes
+## Persistence And Operations
 
-The API reads `DATABASE_PATH`, `CORS_ORIGINS`, `AUTH_SECRET`, and `ENVIRONMENT`. Production requires an explicit `AUTH_SECRET`. Requests receive an `X-Request-ID`; logs contain request metadata only, not credentials or financial payloads.
+The API reads `DATABASE_URL`, `DATABASE_PATH`, `CORS_ORIGINS`, `AUTH_SECRET`, and `ENVIRONMENT`. `DATABASE_URL` takes precedence and accepts SQLAlchemy URLs such as `postgresql+psycopg://user:password@host/database`; when it is unset, local SQLite uses `DATABASE_PATH` or `cashflow.db`. Production requires an explicit `AUTH_SECRET`. Requests receive an `X-Request-ID`; logs contain request metadata only, not credentials or financial payloads.
+
+The default compose setup remains SQLite. To start the optional local PostgreSQL service, run `docker compose --profile postgres up postgres`, then point the backend at its URL, for example `DATABASE_URL=postgresql+psycopg://cashflow:cashflow-local-only@localhost:5432/cashflow`. Run `alembic upgrade head` against the selected database before starting a production deployment. Alembic uses the same `DATABASE_URL` precedence as the API.
 
 SQLite backup and restore utilities are in `scripts/backup_sqlite.py` and `scripts/restore_sqlite.py`. Stop the API before restoring a live database.
 

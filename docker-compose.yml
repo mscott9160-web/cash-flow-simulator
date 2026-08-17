@@ -3,6 +3,7 @@ services:
     build: .
     environment:
       DATABASE_PATH: ${DATABASE_PATH:-/data/cashflow.db}
+      DATABASE_URL: ${DATABASE_URL:-}
       AUTH_SECRET: ${AUTH_SECRET:-local-compose-secret-change-me}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
       ENVIRONMENT: ${ENVIRONMENT:-development}
@@ -21,6 +22,18 @@ services:
       - web-node-modules:/app/node_modules
     depends_on:
       - backend
+  postgres:
+    image: postgres:16-alpine
+    profiles: [postgres]
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-cashflow}
+      POSTGRES_USER: ${POSTGRES_USER:-cashflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cashflow-local-only}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
 volumes:
   cashflow-data:
   web-node-modules:
+  postgres-data:

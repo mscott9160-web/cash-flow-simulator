@@ -9,6 +9,7 @@ from uuid import uuid4
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from sqlalchemy.exc import IntegrityError
 
 from .core.models import Account, Bill, Flexibility, IncomeSource, RecurrenceRule, RecurrenceType
 from .core.optimizer import OptimizationResult, optimize_schedule
@@ -147,7 +148,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-store = ScenarioStore(settings.database_path)
+store = ScenarioStore(settings.database_url or settings.database_path)
 
 
 def _recurrence(request: RecurrenceRequest) -> RecurrenceRule:
@@ -175,7 +176,7 @@ def register(request: AuthRequest) -> dict[str, str]:
         raise HTTPException(status_code=409, detail="Email is already registered")
     try:
         user_id = store.create_user(email, hash_password(request.password))
-    except sqlite3.IntegrityError as error:
+    except (sqlite3.IntegrityError, IntegrityError) as error:
         raise HTTPException(status_code=409, detail="Email is already registered") from error
     return {"access_token": create_access_token(user_id, settings.auth_secret), "token_type": "bearer"}
 
@@ -309,7 +310,7 @@ def create_override(account_id: int, request: OverrideRequest, user_id: int = De
         raise HTTPException(status_code=422, detail="item_id or bill_id is required")
     try:
         override_id = store.create_override(account_id, item_id, request.occurrence_date, request.new_date)
-    except sqlite3.IntegrityError as error:
+    except (sqlite3.IntegrityError, IntegrityError) as error:
         raise HTTPException(status_code=409, detail="Override already exists for this bill occurrence") from error
     if override_id is None:
         raise HTTPException(status_code=404, detail="Bill not found")
