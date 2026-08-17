@@ -1,0 +1,38 @@
+name: Production blocker
+description: Track a release risk, operational blocker, or decision needed
+title: "Blocker: "
+labels:
+  - blocker
+  - production-readiness
+body:
+  - type: textarea
+    id: blocker
+    attributes:
+      label: Blocker
+      description: What prevents the next release gate from passing?
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Low
+        - Medium
+        - High
+        - Release blocking
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: Which user workflow, environment, or release gate is affected?
+    validations:
+      required: true
+  - type: textarea
+    id: decision
+    attributes:
+      label: Proposed decision or next action
+    validations:
+      required: true

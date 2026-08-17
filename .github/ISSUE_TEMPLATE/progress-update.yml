@@ -1,0 +1,44 @@
+name: Progress update
+description: Record a completed milestone or measurable project update
+title: "Progress: "
+labels:
+  - progress
+body:
+  - type: input
+    id: phase
+    attributes:
+      label: Phase or milestone
+      placeholder: "Example: Staging PostgreSQL deployment"
+    validations:
+      required: true
+  - type: dropdown
+    id: status
+    attributes:
+      label: Status
+      options:
+        - Planned
+        - In progress
+        - Blocked
+        - Complete
+    validations:
+      required: true
+  - type: textarea
+    id: shipped
+    attributes:
+      label: What changed?
+      description: Summarize the user-visible or engineering outcome.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Include tests, builds, screenshots, links, or deployment output.
+    validations:
+      required: true
+  - type: textarea
+    id: next
+    attributes:
+      label: Next step
+    validations:
+      required: true
