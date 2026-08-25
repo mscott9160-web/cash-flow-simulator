@@ -105,6 +105,11 @@ python -m pytest backend/tests
 npx playwright install chromium
 npm run e2e
 
+# External staging browser workflow (does not start local servers)
+$env:STAGING_WEB_URL = 'https://cash-flow-simulator-staging-web.onrender.com'
+$env:STAGING_API_URL = 'https://cash-flow-simulator-staging-api.onrender.com'
+npm run e2e:staging
+
 # Mobile
 cd mobile
 npm run typecheck
@@ -112,7 +117,9 @@ npx expo-doctor
 npm run export
 ```
 
-The current checkpoint has 38 backend tests passing, a passing Playwright critical workflow, a clean web build/lint, and Expo Doctor reporting 21/21 checks passed.
+The current checkpoint has 40 backend tests passing, a passing local and hosted Playwright workflow, a clean web build/lint, and Expo Doctor reporting 21/21 checks passed.
+
+Staging E2E requires `STAGING_WEB_URL` and optionally accepts `STAGING_API_URL` for a public `/health` check. Each run registers and logs in with a unique synthetic `example.com` account, then uses fictional bill and income values. Never enter real credentials or financial data. The current Render staging URLs are `https://cash-flow-simulator-staging-web.onrender.com` (web) and `https://cash-flow-simulator-staging-api.onrender.com` (API).
 
 ## API Surface
 

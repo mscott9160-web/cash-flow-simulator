@@ -14,7 +14,7 @@ A daily cash-flow simulator that identifies negative-balance days and searches f
 
 **Overall:** Core product complete; staging infrastructure prepared
 **Last verified:** 2026-08-24
-**Latest development commit:** `b4b42c1`
+**Latest development commit:** `850b44f`
 **Stable portfolio commit:** `e43cf4a`
 
 ## Delivery Board
@@ -45,7 +45,7 @@ See [docs/DECISIONS.md](DECISIONS.md) for the rationale, acceptance criteria, an
 - Backend: `40` tests passing.
 - Web: ESLint passing.
 - Web: production build passing.
-- Browser: Playwright critical workflow passing locally and enforced in GitHub Actions.
+- Browser: Playwright critical workflow passing locally and enforced in GitHub Actions; separate staging mode targets the Render URLs with synthetic accounts and no local servers.
 - Mobile: TypeScript passing.
 - Mobile: Expo Doctor `21/21` checks passing.
 - Mobile: web, iOS, and Android exports passing.
@@ -70,7 +70,7 @@ See [docs/DECISIONS.md](DECISIONS.md) for the rationale, acceptance criteria, an
 
 1. Provision a staging PostgreSQL database and run Alembic migrations against it.
 2. Deploy the API and web client to staging with production-style secrets and CORS.
-3. Add hosted logs, error tracking, uptime checks, backup scheduling, and a staging E2E run.
+3. Add hosted logs, error tracking, uptime checks, and backup scheduling.
 
 ## Staging Preparation Checkpoint
 
@@ -78,7 +78,25 @@ See [docs/DECISIONS.md](DECISIONS.md) for the rationale, acceptance criteria, an
 - The API is built from the existing Dockerfile; its Blueprint binds PostgreSQL `connectionString`, generates `AUTH_SECRET`, and sets `ENVIRONMENT=staging`.
 - The static site runs `npm ci && npm run build`, publishes `dist`, and receives the staging API HTTPS origin through `VITE_API_URL`.
 - `CORS_ORIGINS` is set to the default staging static-site origin. Service renames and custom domains require manually updating both URL values in Render.
-- No Render credentials, database URLs, or secrets were added to the repository. No deployment has been performed.
+- No Render credentials, database URLs, or secrets were added to the repository. The current deployed staging URLs were verified with the staging E2E workflow on 2026-08-24.
+
+## Staging E2E Verification
+
+The local and staging browser workflows are intentionally separate:
+
+```powershell
+# Local: starts temporary API and Vite servers on alternate ports.
+$env:E2E_BACKEND_PORT = '8100'
+$env:E2E_FRONTEND_PORT = '5174'
+npm run e2e
+
+# Staging: does not start local servers and uses only synthetic data.
+$env:STAGING_WEB_URL = 'https://cash-flow-simulator-staging-web.onrender.com'
+$env:STAGING_API_URL = 'https://cash-flow-simulator-staging-api.onrender.com'
+npm run e2e:staging
+```
+
+`STAGING_WEB_URL` is required. `STAGING_API_URL` is optional; when supplied, the staging config checks its public `/health` endpoint before running the browser workflow. Current Render URLs are the web origin `https://cash-flow-simulator-staging-web.onrender.com` and API origin `https://cash-flow-simulator-staging-api.onrender.com`.
 
 ## Production Readiness Gaps
 
