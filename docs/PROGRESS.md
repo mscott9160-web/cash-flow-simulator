@@ -35,7 +35,7 @@ A daily cash-flow simulator that identifies negative-balance days and searches f
 - Backend: `40` tests passing.
 - Web: ESLint passing.
 - Web: production build passing.
-- Browser: Playwright critical workflow passing.
+- Browser: Playwright critical workflow passing locally and enforced in GitHub Actions.
 - Mobile: TypeScript passing.
 - Mobile: Expo Doctor `21/21` checks passing.
 - Mobile: web, iOS, and Android exports passing.

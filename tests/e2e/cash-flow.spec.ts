@@ -22,7 +22,7 @@ test('registers, saves a scenario, and exposes saved item controls', async ({ pa
 
   await expect(page.getByText('Saved to your account')).toBeVisible()
   await expect(page.getByText('$1,200')).toBeVisible()
-  await expect(page.getByRole('heading', { name: '90-day projection' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '90-day projection' }).first()).toBeVisible()
 
   await page.getByRole('button', { name: /Add item/ }).click()
   const incomeForm = page.locator('form.item-form')
