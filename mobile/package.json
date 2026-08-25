@@ -12,10 +12,10 @@
     "export": "expo export"
   },
   "dependencies": {
-    "@expo/metro-runtime": "~57.0.10",
+    "@expo/metro-runtime": "~57.0.13",
     "@expo/vector-icons": "^15.0.2",
-    "expo": "~57.0.13",
-    "expo-dev-client": "~57.0.12",
+    "expo": "~57.0.16",
+    "expo-dev-client": "~57.0.15",
     "expo-font": "~57.0.1",
     "expo-secure-store": "~57.0.1",
     "react": "19.2.3",

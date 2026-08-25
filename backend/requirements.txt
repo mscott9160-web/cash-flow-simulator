@@ -1,6 +1,7 @@
 fastapi
 uvicorn[standard]
 pytest
+httpx2
 passlib[bcrypt]
 bcrypt<4.1
 PyJWT
