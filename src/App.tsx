@@ -167,7 +167,8 @@ function App() {
   const activeItems = items.filter((item) => activeView === 'Income' ? item.kind === 'income' : item.kind === 'bill')
   const recommendation = optimization?.moves[0]
   const recommendedBill = recommendation ? items.find((item) => item.kind === 'bill' && item.name === recommendation.bill_name) : undefined
-  const appliedOverride = recommendation && recommendedBill ? overrides.find((override) => override.item_id === recommendedBill.item_id && override.occurrence_date === recommendation.original_date && override.new_date === recommendation.new_date) : undefined
+  const appliedOverride = overrides.find((override) => items.some((item) => item.kind === 'bill' && item.item_id === override.item_id))
+  const currentRecommendationApplied = recommendation && recommendedBill ? overrides.some((override) => override.item_id === recommendedBill.item_id && override.occurrence_date === recommendation.original_date && override.new_date === recommendation.new_date) : false
 
   async function handleApplyRecommendation() {
     if (!accountId || !recommendation || !recommendedBill) return
@@ -245,7 +246,7 @@ function App() {
       <button className="profile" onClick={handleLogout} aria-label="Sign out">Sign out <span>↗</span></button>
     </header>
     <section className="content">
-      <div className="heading-row"><div><p className="eyebrow">{activeView === 'Projection' ? 'Cash health' : 'Setup'}</p><h1>{activeView}</h1><p className="subheading">{accountId ? 'Your daily balance, projected through September 5.' : 'Start with a balance, then add what you make and owe.'}</p></div><div className="heading-actions">{recommendation && recommendedBill && (appliedOverride ? <button className="outline-button" onClick={handleUndoRecommendation} disabled={loading}>Undo change <span>↶</span></button> : <button className="primary-button" onClick={handleApplyRecommendation} disabled={loading}>Apply recommendation <span>→</span></button>)}<button className="primary-button" onClick={() => { setEditingItem(null); setShowForm(true) }}><span>+</span> Add item</button></div></div>
+      <div className="heading-row"><div><p className="eyebrow">{activeView === 'Projection' ? 'Cash health' : 'Setup'}</p><h1>{activeView}</h1><p className="subheading">{accountId ? 'Your daily balance, projected through September 5.' : 'Start with a balance, then add what you make and owe.'}</p></div><div className="heading-actions">{recommendation && recommendedBill && (currentRecommendationApplied ? <button className="outline-button" onClick={handleUndoRecommendation} disabled={loading}>Undo change <span>↶</span></button> : <button className="primary-button" onClick={handleApplyRecommendation} disabled={loading}>Apply recommendation <span>→</span></button>)}{appliedOverride && !recommendation && <button className="outline-button" onClick={handleUndoRecommendation} disabled={loading}>Undo change <span>↶</span></button>}<button className="primary-button" onClick={() => { setEditingItem(null); setShowForm(true) }}><span>+</span> Add item</button></div></div>
       {error && <div className="notice error-notice">{error}</div>}
       {appliedOverride && <div className="notice recommendation-applied">Applied as a hypothetical schedule change for {appliedOverride.bill_name}. This does not make or schedule a real payment.</div>}
       {recommendation && !recommendedBill && <div className="notice error-notice">This advisory move could not be matched to a saved bill, so it cannot be applied.</div>}
