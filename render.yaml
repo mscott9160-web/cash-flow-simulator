@@ -16,7 +16,8 @@ services:
       - key: ENVIRONMENT
         value: staging
 
-  - type: static_site
+  - type: web
+    runtime: static
     name: cash-flow-simulator-staging-web
     buildCommand: npm ci && npm run build
     staticPublishPath: ./dist

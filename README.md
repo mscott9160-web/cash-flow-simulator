@@ -134,7 +134,7 @@ SQLite backup and restore utilities are in `scripts/backup_sqlite.py` and `scrip
 
 ## Deploy Staging To Render
 
-The locked hosting decision is represented by [render.yaml](render.yaml). It defines separate staging services for the Dockerized FastAPI API, the Vite static site, and PostgreSQL. It contains no credentials or committed secrets.
+The locked hosting decision is represented by [render.yaml](render.yaml). It defines separate staging services for the Dockerized FastAPI API, a Render static web service for the Vite site, and PostgreSQL. It contains no credentials or committed secrets.
 
 1. Create or select the Render team that owns staging, then choose **New > Blueprint** and connect this repository on the `test-com/development` branch.
 2. Review the services from `render.yaml` and apply the Blueprint. Render supplies the API `DATABASE_URL` from the staging database and generates `AUTH_SECRET`.
