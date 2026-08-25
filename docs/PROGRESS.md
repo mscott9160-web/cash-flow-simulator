@@ -65,6 +65,7 @@ See [docs/DECISIONS.md](DECISIONS.md) for the rationale, acceptance criteria, an
 - Reversible hypothetical schedule overrides.
 - Authenticated user ownership isolation.
 - Web and iPhone development-client workflows using the same API.
+- Web Assumptions view and mobile tab navigation expose the locked product contract in-product.
 
 ## Next Three Deliverables
 
@@ -104,6 +105,7 @@ npm run e2e:staging
 - Deployment observability and alerting integration.
 - Mobile dependency audit review without downgrading Expo SDK 57.
 - Broader real-device regression testing.
+- Full account-level export and deletion workflow.
 - App Store release metadata and support/privacy pages.
 - Public demo hosting and repository visibility decision.
 
