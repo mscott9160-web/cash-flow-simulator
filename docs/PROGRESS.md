@@ -45,6 +45,7 @@ A daily cash-flow simulator that identifies negative-balance days and searches f
 ## What Is Working
 
 - Daily balance projection over 90 days.
+- Web projection chart derived from the returned daily balances, including negative-day markers.
 - Correct distinction between biweekly and semi-monthly recurrence.
 - US weekend and federal holiday settlement rules.
 - `FIXED`, `WINDOW`, and `FLEXIBLE` bill constraints.
