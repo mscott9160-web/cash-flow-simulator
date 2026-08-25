@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: cash-flow-simulator-staging-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cash-flow-simulator-staging-db
+          property: connectionString
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://cash-flow-simulator-staging-web.onrender.com
+      - key: ENVIRONMENT
+        value: staging
+
+  - type: static_site
+    name: cash-flow-simulator-staging-web
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://cash-flow-simulator-staging-api.onrender.com
+
+databases:
+  - name: cash-flow-simulator-staging-db
+    databaseName: cashflow_staging
+    user: cashflow_staging
+    plan: free

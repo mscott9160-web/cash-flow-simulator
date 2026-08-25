@@ -12,7 +12,7 @@ A daily cash-flow simulator that identifies negative-balance days and searches f
 
 ## Current Status
 
-**Overall:** Core product complete; production infrastructure in progress
+**Overall:** Core product complete; staging infrastructure prepared
 **Last verified:** 2026-08-24
 **Latest development commit:** `b4b42c1`
 **Stable portfolio commit:** `e43cf4a`
@@ -26,7 +26,7 @@ A daily cash-flow simulator that identifies negative-balance days and searches f
 | 3. Web product workflow | Complete | Login, setup, projection, item CRUD, pause/resume, optimizer, Apply/Undo |
 | 4. Mobile product workflow | Complete | Expo SDK 57 development client, projection, item management, optimizer Apply/Undo |
 | 5. Automated quality gates | Complete | Backend tests, Playwright E2E, web lint/build, mobile typecheck/Expo Doctor/export |
-| 6. Production persistence | In progress | PostgreSQL-ready; hosted database and migration rehearsal remain |
+| 6. Production persistence | In progress | Render PostgreSQL Blueprint prepared; hosted database and migration rehearsal remain |
 | 7. Production operations | In progress | Request IDs, safe logs, backup/restore scripts; hosted monitoring remains |
 | 8. Public release | Planned | Staging deployment, security review, app-store release, public demo decision |
 
@@ -71,6 +71,14 @@ See [docs/DECISIONS.md](DECISIONS.md) for the rationale, acceptance criteria, an
 1. Provision a staging PostgreSQL database and run Alembic migrations against it.
 2. Deploy the API and web client to staging with production-style secrets and CORS.
 3. Add hosted logs, error tracking, uptime checks, backup scheduling, and a staging E2E run.
+
+## Staging Preparation Checkpoint
+
+- Added `render.yaml` for separate `cash-flow-simulator-staging-api`, `cash-flow-simulator-staging-web`, and `cash-flow-simulator-staging-db` resources.
+- The API is built from the existing Dockerfile; its Blueprint binds PostgreSQL `connectionString`, generates `AUTH_SECRET`, and sets `ENVIRONMENT=staging`.
+- The static site runs `npm ci && npm run build`, publishes `dist`, and receives the staging API HTTPS origin through `VITE_API_URL`.
+- `CORS_ORIGINS` is set to the default staging static-site origin. Service renames and custom domains require manually updating both URL values in Render.
+- No Render credentials, database URLs, or secrets were added to the repository. No deployment has been performed.
 
 ## Production Readiness Gaps
 

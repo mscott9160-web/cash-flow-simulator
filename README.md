@@ -132,6 +132,24 @@ The default compose setup remains SQLite. To start the optional local PostgreSQL
 
 SQLite backup and restore utilities are in `scripts/backup_sqlite.py` and `scripts/restore_sqlite.py`. Stop the API before restoring a live database.
 
+## Deploy Staging To Render
+
+The locked hosting decision is represented by [render.yaml](render.yaml). It defines separate staging services for the Dockerized FastAPI API, the Vite static site, and PostgreSQL. It contains no credentials or committed secrets.
+
+1. Create or select the Render team that owns staging, then choose **New > Blueprint** and connect this repository on the `test-com/development` branch.
+2. Review the services from `render.yaml` and apply the Blueprint. Render supplies the API `DATABASE_URL` from the staging database and generates `AUTH_SECRET`.
+3. Before inviting testers, confirm the API service has `ENVIRONMENT=staging` and that its health check is `GET /health`.
+4. Rehearse or apply the schema migration against the Render database from a trusted local shell using the database connection string copied from Render:
+
+    ```powershell
+    $env:DATABASE_URL = 'postgresql+psycopg://<user>:<password>@<host>/<database>'
+    python -m alembic upgrade head
+    ```
+
+5. Verify the static site's `VITE_API_URL` points to the API's HTTPS origin and the API's `CORS_ORIGINS` contains the static site's HTTPS origin. These values are set to the default staging `onrender.com` URLs in `render.yaml`.
+
+Render-specific manual configuration: replace both URL values if a service is renamed or a custom domain is added. Keep `CORS_ORIGINS` as a comma-separated list of complete origins, with no trailing path. Configure Render-managed backups, log retention, alerting, and access permissions in the dashboard; those operational settings are intentionally not encoded here. Do not paste database URLs or generated secrets into the repository.
+
 ## Scope Boundary
 
 This is a focused cash-flow planning tool. Bank syncing, Plaid, categorization, net worth, debt payoff, investment forecasting, and AI-generated financial advice are intentionally outside v1.
