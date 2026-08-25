@@ -12,9 +12,9 @@ A daily cash-flow simulator that identifies negative-balance days and searches f
 
 ## Current Status
 
-**Overall:** Core product complete; production infrastructure in progress  
-**Last verified:** 2026-08-17  
-**Latest development commit:** `510d778`  
+**Overall:** Core product complete; production infrastructure in progress
+**Last verified:** 2026-08-24
+**Latest development commit:** `b4b42c1`
 **Stable portfolio commit:** `e43cf4a`
 
 ## Delivery Board
@@ -29,6 +29,16 @@ A daily cash-flow simulator that identifies negative-balance days and searches f
 | 6. Production persistence | In progress | PostgreSQL-ready; hosted database and migration rehearsal remain |
 | 7. Production operations | In progress | Request IDs, safe logs, backup/restore scripts; hosted monitoring remains |
 | 8. Public release | Planned | Staging deployment, security review, app-store release, public demo decision |
+
+## Locked Release Decisions
+
+- Hosting: Render Web Service, Static Site, and PostgreSQL.
+- Audience: portfolio demo for recruiters and managers first.
+- Data: separate synthetic demo environment and isolated staging environment.
+- Contract: US/USD, cents, US federal holidays, America/New_York, 90-day horizon.
+- Recommendations: advisory hypothetical bill-date changes with explicit Apply/Undo.
+
+See [docs/DECISIONS.md](DECISIONS.md) for the rationale, acceptance criteria, and remaining release blockers.
 
 ## Verified Quality Gates
 

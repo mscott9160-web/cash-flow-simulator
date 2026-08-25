@@ -4,7 +4,7 @@ Daily cash-flow projection for people who have enough money across the month but
 
 [![CI](https://github.com/mscott9160-web/cash-flow-simulator/actions/workflows/ci.yml/badge.svg)](https://github.com/mscott9160-web/cash-flow-simulator/actions/workflows/ci.yml) [![Development](https://img.shields.io/badge/development-test--com%2Fdevelopment-38654C)](https://github.com/mscott9160-web/cash-flow-simulator/tree/test-com/development) [![Stable](https://img.shields.io/badge/stable-master-20251F)](https://github.com/mscott9160-web/cash-flow-simulator/tree/master)
 
-**Progress:** [View the portfolio progress board](docs/PROGRESS.md)
+**Progress:** [View the portfolio progress board](docs/PROGRESS.md) · [Read the release decisions](docs/DECISIONS.md)
 
 > Given what you make and what you owe, show which days go negative and what single scheduling change could improve them.
 
