@@ -10,6 +10,7 @@ Expo React Native client for the Cashflow Simulator API.
 - Daily projection dashboard
 - Negative-day summary
 - Optimizer recommendation with hypothetical Apply/Undo
+- Demo onboarding is intentionally scoped to web for this release; mobile keeps the authenticated login/register flow and does not create synthetic accounts.
 - Add, edit, pause, resume, and delete income and bills
 
 ## Local Development
