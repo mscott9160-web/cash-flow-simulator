@@ -76,8 +76,11 @@ export async function deleteOverride(token: string, accountId: number, overrideI
   await request(`/api/v1/accounts/${accountId}/overrides/${overrideId}`, { method: 'DELETE' }, token)
 }
 
-export async function addItem(token: string, accountId: number, item: { kind: 'income' | 'bill'; name: string; amount: string; anchor: string; recurrence: RecurrenceKind }) {
-  const payload = { name: item.name, amount: item.amount, recurrence: { kind: item.recurrence, anchor: item.anchor }, ...(item.kind === 'bill' ? { flexibility: 'FIXED' } : {}) }
+export type BillFlexibility = 'FIXED' | 'WINDOW' | 'FLEXIBLE'
+type BillFields = { flexibility: BillFlexibility; windowStart?: number; windowEnd?: number }
+function billPayload(item: BillFields) { return { flexibility: item.flexibility, ...(item.flexibility === 'WINDOW' ? { window_start: item.windowStart, window_end: item.windowEnd } : {}) } }
+export async function addItem(token: string, accountId: number, item: { kind: 'income' | 'bill'; name: string; amount: string; anchor: string; recurrence: RecurrenceKind; flexibility?: BillFlexibility; windowStart?: number; windowEnd?: number }) {
+  const payload = { name: item.name, amount: item.amount, recurrence: { kind: item.recurrence, anchor: item.anchor }, ...(item.kind === 'bill' ? billPayload({ flexibility: item.flexibility ?? 'FIXED', windowStart: item.windowStart, windowEnd: item.windowEnd }) : {}) }
   await request(`/api/v1/accounts/${accountId}/${item.kind === 'income' ? 'incomes' : 'bills'}`, { method: 'POST', body: JSON.stringify(payload) }, token)
 }
 
@@ -96,7 +99,7 @@ export async function updateIncome(token: string, accountId: number, item: Saved
 }
 
 export async function updateBill(token: string, accountId: number, item: Bill) {
-  await request(`/api/v1/accounts/${accountId}/bills/${item.item_id}`, { method: 'PUT', body: JSON.stringify({ name: item.name, amount: item.amount, enabled: item.enabled, flexibility: item.flexibility ?? 'FIXED', window_start: item.window_start, window_end: item.window_end, recurrence: item.recurrence }) }, token)
+  await request(`/api/v1/accounts/${accountId}/bills/${item.item_id}`, { method: 'PUT', body: JSON.stringify({ name: item.name, amount: item.amount, enabled: item.enabled, ...billPayload({ flexibility: item.flexibility ?? 'FIXED', windowStart: item.window_start, windowEnd: item.window_end }), recurrence: item.recurrence }) }, token)
 }
 
 export async function setItemEnabled(token: string, accountId: number, item: SavedItem, enabled: boolean) {
