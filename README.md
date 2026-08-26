@@ -141,6 +141,8 @@ The default compose setup remains SQLite. To start the optional local PostgreSQL
 
 SQLite backup and restore utilities are in `scripts/backup_sqlite.py` and `scripts/restore_sqlite.py`. Stop the API before restoring a live database.
 
+For PostgreSQL backup and restore practice, follow [docs/POSTGRES-BACKUP-RESTORE-REHEARSAL.md](docs/POSTGRES-BACKUP-RESTORE-REHEARSAL.md). It uses a disposable restore database and identifies the Render dashboard checks that cannot be automated from this repository.
+
 ## Deploy Staging To Render
 
 The locked hosting decision is represented by [render.yaml](render.yaml). It defines separate staging services for the Dockerized FastAPI API, a Render static web service for the Vite site, and PostgreSQL. It contains no credentials or committed secrets.

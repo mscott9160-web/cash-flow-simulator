@@ -6,7 +6,7 @@ import sqlite3
 from time import perf_counter
 from uuid import uuid4
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from sqlalchemy.exc import IntegrityError
@@ -14,7 +14,7 @@ from sqlalchemy.exc import IntegrityError
 from .core.models import Account, Bill, Flexibility, IncomeSource, RecurrenceRule, RecurrenceType
 from .core.optimizer import OptimizationResult, optimize_schedule
 from .core.projection import project
-from .auth import create_access_token, current_user_id, hash_password, verify_password
+from .auth import create_access_token, current_user_id, enforce_auth_rate_limit, hash_password, verify_password
 from .storage import ItemRecord, ScenarioStore
 from .settings import Settings
 
@@ -204,7 +204,8 @@ def ready() -> dict[str, str]:
 
 
 @app.post("/api/v1/auth/register")
-def register(request: AuthRequest) -> dict[str, str]:
+def register(request: AuthRequest, http_request: Request) -> dict[str, str]:
+    enforce_auth_rate_limit(http_request, "register", settings.auth_rate_limit_max_attempts, settings.auth_rate_limit_window_seconds)
     email = request.email.strip().lower()
     if store.get_user_by_email(email) is not None:
         raise HTTPException(status_code=409, detail="Email is already registered")
@@ -216,7 +217,8 @@ def register(request: AuthRequest) -> dict[str, str]:
 
 
 @app.post("/api/v1/auth/login")
-def login(request: AuthRequest) -> dict[str, str]:
+def login(request: AuthRequest, http_request: Request) -> dict[str, str]:
+    enforce_auth_rate_limit(http_request, "login", settings.auth_rate_limit_max_attempts, settings.auth_rate_limit_window_seconds)
     user = store.get_user_by_email(request.email.strip().lower())
     if user is None or not verify_password(request.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid email or password", headers={"WWW-Authenticate": "Bearer"})
