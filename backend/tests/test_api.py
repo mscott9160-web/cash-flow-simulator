@@ -343,3 +343,121 @@ def test_enabled_state_is_account_scoped_and_legacy_items_default_enabled(tmp_pa
     assert record.item_id == 1
     assert record.enabled is True
     assert store.get_items(1, "income")[0].name == "Legacy income"
+
+
+def test_account_export_returns_account_items_and_overrides_shape(tmp_path, monkeypatch):
+    monkeypatch.setattr(api, "store", ScenarioStore(str(tmp_path / "account-export.sqlite")))
+    account_id = client.post("/api/v1/accounts", json={"starting_balance": "250.00", "as_of": "2025-06-01"}).json()["id"]
+    income_id = client.post(
+        f"/api/v1/accounts/{account_id}/incomes",
+        json={
+            "name": "Payroll",
+            "amount": "1000.00",
+            "recurrence": {"kind": "MONTHLY", "anchor": "2025-06-01", "day_of_month": 1},
+            "enabled": False,
+        },
+    ).json()["id"]
+    bill_id = client.post(
+        f"/api/v1/accounts/{account_id}/bills",
+        json={
+            "name": "Rent",
+            "amount": "750.00",
+            "recurrence": {"kind": "MONTHLY", "anchor": "2025-06-03", "day_of_month": 3},
+            "flexibility": "WINDOW",
+            "window_start": 1,
+            "window_end": 5,
+        },
+    ).json()["id"]
+    override_id = client.post(
+        f"/api/v1/accounts/{account_id}/overrides",
+        json={"item_id": bill_id, "occurrence_date": "2025-07-03", "new_date": "2025-07-04"},
+    ).json()["id"]
+
+    response = client.get(f"/api/v1/accounts/{account_id}/export")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["account"] == {"id": account_id, "starting_balance": "250.00", "as_of": "2025-06-01"}
+    assert len(payload["incomes"]) == 1
+    assert payload["incomes"][0]["item_id"] == income_id
+    assert payload["incomes"][0]["enabled"] is False
+    assert payload["incomes"][0]["recurrence"]["day_of_month"] == 1
+    assert len(payload["bills"]) == 1
+    assert payload["bills"][0]["item_id"] == bill_id
+    assert payload["bills"][0]["flexibility"] == "WINDOW"
+    assert payload["bills"][0]["window_start"] == 1
+    assert payload["bills"][0]["window_end"] == 5
+    assert payload["overrides"] == [
+        {
+            "id": override_id,
+            "item_id": bill_id,
+            "bill_name": "Rent",
+            "occurrence_date": "2025-07-03",
+            "new_date": "2025-07-04",
+            "created_at": payload["overrides"][0]["created_at"],
+        }
+    ]
+
+
+def test_account_export_and_delete_enforce_auth_and_ownership(tmp_path, monkeypatch):
+    monkeypatch.setattr(api, "store", ScenarioStore(str(tmp_path / "account-authz.sqlite")))
+    account_id = client.post("/api/v1/accounts", json={"starting_balance": "10.00", "as_of": "2025-06-01"}).json()["id"]
+    other_user_headers = {"Authorization": f"Bearer {create_access_token(2, api.settings.auth_secret)}"}
+
+    unauthenticated_export = TestClient(app).get(f"/api/v1/accounts/{account_id}/export")
+    assert unauthenticated_export.status_code == 401
+    assert unauthenticated_export.headers["www-authenticate"] == "Bearer"
+
+    unauthorized_export = client.get(f"/api/v1/accounts/{account_id}/export", headers=other_user_headers)
+    assert unauthorized_export.status_code == 404
+
+    unauthorized_delete = client.delete(f"/api/v1/accounts/{account_id}", headers=other_user_headers)
+    assert unauthorized_delete.status_code == 404
+
+
+def test_account_delete_cascades_owned_data_and_persists(tmp_path, monkeypatch):
+    db_path = tmp_path / "account-delete.sqlite"
+    monkeypatch.setattr(api, "store", ScenarioStore(str(db_path)))
+
+    account_id = client.post("/api/v1/accounts", json={"starting_balance": "100.00", "as_of": "2025-06-01"}).json()["id"]
+    retained_account_id = client.post("/api/v1/accounts", json={"starting_balance": "5.00", "as_of": "2025-06-01"}).json()["id"]
+    income_id = client.post(
+        f"/api/v1/accounts/{account_id}/incomes",
+        json={"name": "Pay", "amount": "500.00", "recurrence": {"kind": "ONCE", "anchor": "2025-06-02"}},
+    ).json()["id"]
+    bill_id = client.post(
+        f"/api/v1/accounts/{account_id}/bills",
+        json={"name": "Rent", "amount": "200.00", "recurrence": {"kind": "ONCE", "anchor": "2025-06-03"}, "flexibility": "FIXED"},
+    ).json()["id"]
+    client.post(
+        f"/api/v1/accounts/{retained_account_id}/bills",
+        json={"name": "Phone", "amount": "30.00", "recurrence": {"kind": "ONCE", "anchor": "2025-06-04"}, "flexibility": "FIXED"},
+    )
+    override_id = client.post(
+        f"/api/v1/accounts/{account_id}/overrides",
+        json={"item_id": bill_id, "occurrence_date": "2025-06-03", "new_date": "2025-06-04"},
+    ).json()["id"]
+
+    with sqlite3.connect(db_path) as connection:
+        items_before = connection.execute("SELECT COUNT(*) FROM items WHERE id IN (?, ?)", (income_id, bill_id)).fetchone()[0]
+        overrides_before = connection.execute("SELECT COUNT(*) FROM overrides WHERE id = ?", (override_id,)).fetchone()[0]
+    assert items_before == 2
+    assert overrides_before == 1
+
+    deleted = client.delete(f"/api/v1/accounts/{account_id}")
+    assert deleted.status_code == 204
+    assert client.get(f"/api/v1/accounts/{account_id}/export").status_code == 404
+    assert client.get(f"/api/v1/accounts/{retained_account_id}/bills").status_code == 200
+
+    monkeypatch.setattr(api, "store", ScenarioStore(str(db_path)))
+    assert client.get(f"/api/v1/accounts/{account_id}/projection").status_code == 404
+
+    with sqlite3.connect(db_path) as connection:
+        accounts_after = connection.execute("SELECT COUNT(*) FROM accounts WHERE id = ?", (account_id,)).fetchone()[0]
+        items_after = connection.execute("SELECT COUNT(*) FROM items WHERE id IN (?, ?)", (income_id, bill_id)).fetchone()[0]
+        overrides_after = connection.execute("SELECT COUNT(*) FROM overrides WHERE id = ?", (override_id,)).fetchone()[0]
+        retained_items_after = connection.execute("SELECT COUNT(*) FROM items WHERE account_id = ?", (retained_account_id,)).fetchone()[0]
+    assert accounts_after == 0
+    assert items_after == 0
+    assert overrides_after == 0
+    assert retained_items_after == 1

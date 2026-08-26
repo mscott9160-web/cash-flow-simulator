@@ -90,4 +90,12 @@ test('registers, saves a scenario, and exposes saved item controls', async ({ pa
   await expect(page.getByRole('dialog', { name: /Delete Paycheck/ })).toContainText('remove future occurrences from the projection')
   await page.getByRole('button', { name: 'Delete item' }).click()
   await expect(page.getByRole('button', { name: 'Edit Paycheck' })).toBeHidden()
+
+  await expect(page.getByRole('button', { name: 'Export data' })).toBeVisible()
+  const downloadPromise = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Export data' }).click()
+  await expect(downloadPromise).resolves.toBeTruthy()
+  page.once('dialog', dialog => { expect(dialog.type()).toBe('confirm'); void dialog.accept() })
+  await page.getByRole('button', { name: 'Delete account' }).click()
+  await expect(page.getByRole('heading', { name: 'Welcome back' })).toBeVisible()
 })

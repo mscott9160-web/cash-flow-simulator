@@ -9,6 +9,7 @@ export type Optimization = { moves: OptimizationMove[]; before_min_balance: stri
 export type Override = { id: number; item_id: number; bill_name: string; occurrence_date: string; new_date: string; created_at: string }
 export type SavedItem = { id: number; item_id: number; kind: 'income' | 'bill'; name: string; amount: string; variance_pct: string; enabled: boolean; recurrence: { kind: RecurrenceKind; anchor: string; day_of_month?: number; second_day_of_month?: number }; flexibility?: 'FIXED' | 'WINDOW' | 'FLEXIBLE'; window_start?: number; window_end?: number }
 export type Bill = SavedItem & { kind: 'bill' }
+export type AccountExport = { account: { id: number; starting_balance: string; as_of: string }; incomes: SavedItem[]; bills: Bill[]; overrides: Override[] }
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000'
 const TOKEN_KEY = 'cashflow-access-token'
@@ -104,4 +105,14 @@ export async function setItemEnabled(token: string, accountId: number, item: Sav
 
 export async function deleteItem(token: string, accountId: number, item: SavedItem) {
   await request(`/api/v1/accounts/${accountId}/${item.kind === 'income' ? 'incomes' : 'bills'}/${item.item_id}`, { method: 'DELETE' }, token)
+}
+
+export async function exportAccount(token: string, accountId: number) {
+  const response = await request(`/api/v1/accounts/${accountId}/export`, {}, token)
+  return await response.json() as AccountExport
+}
+
+export async function deleteAccount(token: string, accountId: number) {
+  await request(`/api/v1/accounts/${accountId}`, { method: 'DELETE' }, token)
+  await signOut()
 }

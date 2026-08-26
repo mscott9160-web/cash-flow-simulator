@@ -120,6 +120,16 @@ class ScenarioStore:
             row = connection.execute(text(query), params).mappings().first()
         return None if row is None else Account(Decimal(row["starting_balance"]), date.fromisoformat(row["as_of"]))
 
+    def delete_account(self, account_id: int, user_id: int | None = None) -> bool:
+        query = "DELETE FROM accounts WHERE id = :account_id"
+        params = {"account_id": account_id}
+        if user_id is not None:
+            query += " AND user_id = :user_id"
+            params["user_id"] = user_id
+        with self._connect() as connection:
+            result = connection.execute(text(query), params)
+            return result.rowcount in {-1, 1}
+
     def create_income(self, account_id: int, income: IncomeSource, enabled: bool = True) -> int:
         return self._create_item(account_id, "income", income.name, income.amount, income.variance_pct, income.recurrence, None, enabled)
 

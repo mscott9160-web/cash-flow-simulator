@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
-import { addBill, addIncome, createAccount, createOverride, deleteItem, deleteOverride, getItems, getOptimization, getOverrides, getProjection, login, register, setItemEnabled, updateBill, updateIncome } from './api'
+import { addBill, addIncome, createAccount, createOverride, deleteAccount, deleteItem, deleteOverride, exportAccount, getItems, getOptimization, getOverrides, getProjection, login, register, setItemEnabled, updateBill, updateIncome } from './api'
 import type { RecurrenceKind } from './api'
 import type { Optimization, Override, ProjectedDay, SavedItem } from './api'
 import './App.css'
@@ -248,6 +248,32 @@ function App() {
     } finally { setLoading(false) }
   }
 
+  async function handleExport() {
+    if (!accountId) return
+    setLoading(true); setError(''); setNotice('Preparing account export...')
+    try {
+      const data = await exportAccount(accountId)
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url; link.download = `cashflow-account-${accountId}.json`; link.click()
+      URL.revokeObjectURL(url)
+      setNotice('Account export downloaded')
+    } catch (exportError) { setError(exportError instanceof Error ? exportError.message : 'Could not export your account.')
+    } finally { setLoading(false) }
+  }
+
+  async function handleDeleteAccount() {
+    if (!accountId || !window.confirm('Delete your account and all saved cash-flow data? This cannot be undone.')) return
+    setLoading(true); setError(''); setNotice('Deleting your account...')
+    try {
+      await deleteAccount(accountId)
+      localStorage.removeItem('cashflow-access-token'); localStorage.removeItem('cashflow-account-id')
+      setToken(''); setAccountId(null); setDays([]); setItems([]); setOptimization(null); setOverrides([]); setNotice('')
+    } catch (deleteError) { setError(deleteError instanceof Error ? deleteError.message : 'Could not delete your account.')
+    } finally { setLoading(false) }
+  }
+
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     setError('')
@@ -281,7 +307,7 @@ function App() {
     <header className="topbar">
       <div className="brand"><span className="brand-mark">cf</span><span>cashflow</span></div>
       <nav aria-label="Main navigation">{(['Projection', 'Income', 'Bills', 'Assumptions'] as View[]).map((item) => <button className={activeView === item ? 'nav-item active' : 'nav-item'} key={item} onClick={() => setActiveView(item)}>{item}</button>)}</nav>
-      <button className="profile" onClick={handleLogout} aria-label="Sign out">Sign out <span>↗</span></button>
+      {accountId && <><button className="profile" onClick={handleExport} disabled={loading}>Export data</button><button className="profile" onClick={handleDeleteAccount} disabled={loading}>Delete account</button></>}<button className="profile" onClick={handleLogout} aria-label="Sign out">Sign out <span>↗</span></button>
     </header>
     <section className="content">
       <div className="heading-row"><div><p className="eyebrow">{activeView === 'Projection' ? 'Cash health' : activeView === 'Assumptions' ? 'Product boundaries' : 'Setup'}</p><h1>{activeView}</h1><p className="subheading">{activeView === 'Assumptions' ? 'A clear reference for how the simulator treats timing, money, and recommendations.' : accountId ? 'Your daily balance, projected through September 5.' : 'Start with a balance, then add what you make and owe.'}</p></div>{activeView !== 'Assumptions' && <div className="heading-actions">{recommendation && recommendedBill && (currentRecommendationApplied ? <button className="outline-button" onClick={handleUndoRecommendation} disabled={loading}>Undo change <span>↶</span></button> : <button className="primary-button" onClick={handleApplyRecommendation} disabled={loading}>Apply recommendation <span>→</span></button>)}{appliedOverride && !recommendation && <button className="outline-button" onClick={handleUndoRecommendation} disabled={loading}>Undo change <span>↶</span></button>}<button className="primary-button" onClick={() => { setEditingItem(null); setShowForm(true) }}><span>+</span> Add item</button></div>}</div>

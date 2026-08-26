@@ -126,6 +126,8 @@ Staging E2E requires `STAGING_WEB_URL` and optionally accepts `STAGING_API_URL` 
 - `POST /api/v1/auth/register`
 - `POST /api/v1/auth/login`
 - Account, income, and bill CRUD under `/api/v1/accounts`
+- `GET /api/v1/accounts/{account_id}/export` (authenticated account-level data export)
+- `DELETE /api/v1/accounts/{account_id}` (authenticated account-level cascade delete)
 - `GET /api/v1/accounts/{account_id}/projection`
 - `GET /api/v1/accounts/{account_id}/optimization`
 - Reversible override create/list/delete endpoints

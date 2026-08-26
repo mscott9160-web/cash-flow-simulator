@@ -75,6 +75,40 @@ class OverrideResponse(BaseModel):
     created_at: str
 
 
+class RecurrenceResponse(BaseModel):
+    kind: RecurrenceType
+    anchor: date
+    day_of_month: int | None
+    second_day_of_month: int | None
+
+
+class AccountExportAccountResponse(BaseModel):
+    id: int
+    starting_balance: str
+    as_of: date
+
+
+class AccountExportItemResponse(BaseModel):
+    id: int
+    item_id: int
+    kind: str
+    enabled: bool
+    name: str
+    amount: str
+    variance_pct: str
+    recurrence: RecurrenceResponse
+    flexibility: str | None = None
+    window_start: int | None = None
+    window_end: int | None = None
+
+
+class AccountExportResponse(BaseModel):
+    account: AccountExportAccountResponse
+    incomes: list[AccountExportItemResponse]
+    bills: list[AccountExportItemResponse]
+    overrides: list[OverrideResponse]
+
+
 class ProjectionRequest(BaseModel):
     account: AccountRequest
     incomes: list[IncomeRequest] = Field(default_factory=list)
@@ -225,11 +259,34 @@ def _item_response(record: ItemRecord) -> dict:
     return response
 
 
+def _account_response(account_id: int, account: Account) -> dict:
+    return {"id": account_id, "starting_balance": str(account.starting_balance), "as_of": account.as_of}
+
+
 @app.get("/api/v1/accounts/{account_id}/incomes")
 def list_incomes(account_id: int, user_id: int = Depends(current_user_id)) -> list[dict]:
     if store.get_account(account_id, user_id) is None:
         raise HTTPException(status_code=404, detail="Account not found")
     return [_item_response(record) for record in store.list_items(account_id, "income")]
+
+
+@app.get("/api/v1/accounts/{account_id}/export", response_model=AccountExportResponse)
+def export_account(account_id: int, user_id: int = Depends(current_user_id)) -> dict:
+    account = store.get_account(account_id, user_id)
+    if account is None:
+        raise HTTPException(status_code=404, detail="Account not found")
+    return {
+        "account": _account_response(account_id, account),
+        "incomes": [_item_response(record) for record in store.list_items(account_id, "income")],
+        "bills": [_item_response(record) for record in store.list_items(account_id, "bill")],
+        "overrides": store.list_overrides(account_id),
+    }
+
+
+@app.delete("/api/v1/accounts/{account_id}", status_code=204)
+def delete_account(account_id: int, user_id: int = Depends(current_user_id)) -> None:
+    if not store.delete_account(account_id, user_id):
+        raise HTTPException(status_code=404, detail="Account not found")
 
 
 @app.put("/api/v1/accounts/{account_id}/incomes/{item_id}")
