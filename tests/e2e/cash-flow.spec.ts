@@ -12,6 +12,8 @@ test('registers, saves a scenario, and exposes saved item controls', async ({ pa
   await page.getByRole('button', { name: /Create my workspace/ }).click()
 
   await expect(page.getByRole('heading', { name: 'Projection', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Settings', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Keep your account in your hands', exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Sign out' }).click()
   await page.getByRole('tab', { name: 'Sign in' }).click()
   await page.getByLabel('Email address').fill(email)
@@ -91,9 +93,11 @@ test('registers, saves a scenario, and exposes saved item controls', async ({ pa
   await page.getByRole('button', { name: 'Delete item' }).click()
   await expect(page.getByRole('button', { name: 'Edit Paycheck' })).toBeHidden()
 
-  await expect(page.getByRole('button', { name: 'Export data' })).toBeVisible()
+  await page.getByRole('button', { name: 'Settings', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Keep your account in your hands', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Export data/ })).toBeVisible()
   const downloadPromise = page.waitForEvent('download')
-  await page.getByRole('button', { name: 'Export data' }).click()
+  await page.getByRole('button', { name: /Export data/ }).click()
   await expect(downloadPromise).resolves.toBeTruthy()
   page.once('dialog', dialog => { expect(dialog.type()).toBe('confirm'); void dialog.accept() })
   await page.getByRole('button', { name: 'Delete account' }).click()

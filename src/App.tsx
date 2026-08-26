@@ -5,7 +5,7 @@ import type { RecurrenceKind } from './api'
 import type { Optimization, Override, ProjectedDay, SavedItem } from './api'
 import './App.css'
 
-type View = 'Projection' | 'Income' | 'Bills' | 'Assumptions'
+type View = 'Projection' | 'Income' | 'Bills' | 'Assumptions' | 'Settings'
 type ItemKind = 'income' | 'bill'
 
 function relativeDate(daysFromToday: number) { const date = new Date(); date.setHours(12, 0, 0, 0); date.setDate(date.getDate() + daysFromToday); return date.toISOString().slice(0, 10) }
@@ -135,6 +135,10 @@ function AssumptionsPanel() {
   </section>
 }
 
+function SettingsPanel({ onExport, onDelete, onLogout, loading }: { onExport: () => void; onDelete: () => void; onLogout: () => void; loading: boolean }) {
+  return <section className="settings-panel panel" aria-labelledby="settings-title"><div className="settings-intro"><p className="eyebrow">Account management</p><h2 id="settings-title">Keep your account in your hands</h2><p>Export a copy of your saved cash-flow data, or manage your session and account.</p></div><div className="settings-actions"><button className="outline-button" onClick={onExport} disabled={loading}>{loading ? 'Preparing export...' : <>Export data <span>↓</span></>}</button><button className="text-button" onClick={onLogout} disabled={loading}>Sign out <span>↗</span></button></div><div className="danger-section"><p className="eyebrow">Destructive action</p><h2>Delete account</h2><p>This permanently removes your account and all saved cash-flow data. This cannot be undone.</p><button className="danger-action" onClick={onDelete} disabled={loading}>Delete account</button></div></section>
+}
+
 function App() {
   const [token, setToken] = useState(() => localStorage.getItem('cashflow-access-token') ?? '')
   const [activeView, setActiveView] = useState<View>('Projection')
@@ -159,27 +163,26 @@ function App() {
     localStorage.removeItem('cashflow-account-id')
     setToken('')
     setAccountId(null)
+    setActiveView('Projection')
   }
 
   const refreshAccount = useCallback(async (id: number) => {
-    const [projection, incomes, bills, savedOptimization, savedOverrides] = await Promise.all([getProjection(id), getItems(id, 'income'), getItems(id, 'bill'), getOptimization(id), getOverrides(id)])
-    setDays(projection)
-    setItems([...incomes, ...bills])
-    setOptimization(savedOptimization)
-    setOverrides(savedOverrides)
+    setLoading(true)
+    try {
+      const [projection, incomes, bills, savedOptimization, savedOverrides] = await Promise.all([getProjection(id), getItems(id, 'income'), getItems(id, 'bill'), getOptimization(id), getOverrides(id)])
+      setDays(projection); setItems([...incomes, ...bills]); setOptimization(savedOptimization); setOverrides(savedOverrides)
+    } finally { setLoading(false) }
   }, [])
 
   useEffect(() => {
     if (!accountId) return
-    Promise.all([getProjection(accountId), getItems(accountId, 'income'), getItems(accountId, 'bill'), getOptimization(accountId), getOverrides(accountId)]).then(([projection, incomes, bills, savedOptimization, savedOverrides]) => {
-      setDays(projection)
-      setItems([...incomes, ...bills])
-      setOptimization(savedOptimization)
-      setOverrides(savedOverrides)
+    // The refresh owns loading state and synchronizes the account snapshot.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    refreshAccount(accountId).then(() => {
       setNotice('Synced from your account')
       setError('')
-    }).catch(() => setError('The saved projection could not be loaded.')).finally(() => setLoading(false))
-  }, [accountId])
+    }).catch(() => setError('The saved projection could not be loaded.'))
+  }, [accountId, refreshAccount])
 
   const lowest = days.reduce((current, day) => Math.min(current, amount(day.closing_balance)), Infinity)
   const negativeDays = days.filter((day) => amount(day.closing_balance) < 0)
@@ -306,16 +309,16 @@ function App() {
   return <main className="app-shell">
     <header className="topbar">
       <div className="brand"><span className="brand-mark">cf</span><span>cashflow</span></div>
-      <nav aria-label="Main navigation">{(['Projection', 'Income', 'Bills', 'Assumptions'] as View[]).map((item) => <button className={activeView === item ? 'nav-item active' : 'nav-item'} key={item} onClick={() => setActiveView(item)}>{item}</button>)}</nav>
-      {accountId && <><button className="profile" onClick={handleExport} disabled={loading}>Export data</button><button className="profile" onClick={handleDeleteAccount} disabled={loading}>Delete account</button></>}<button className="profile" onClick={handleLogout} aria-label="Sign out">Sign out <span>↗</span></button>
+      <nav aria-label="Main navigation">{(['Projection', 'Income', 'Bills', 'Assumptions', 'Settings'] as View[]).map((item) => <button className={activeView === item ? 'nav-item active' : 'nav-item'} key={item} onClick={() => setActiveView(item)}>{item}</button>)}</nav>
+      {accountId && <button className="profile" onClick={handleLogout} aria-label="Sign out">Sign out <span>↗</span></button>}
     </header>
     <section className="content">
       <div className="heading-row"><div><p className="eyebrow">{activeView === 'Projection' ? 'Cash health' : activeView === 'Assumptions' ? 'Product boundaries' : 'Setup'}</p><h1>{activeView}</h1><p className="subheading">{activeView === 'Assumptions' ? 'A clear reference for how the simulator treats timing, money, and recommendations.' : accountId ? 'Your daily balance, projected through September 5.' : 'Start with a balance, then add what you make and owe.'}</p></div>{activeView !== 'Assumptions' && <div className="heading-actions">{recommendation && recommendedBill && (currentRecommendationApplied ? <button className="outline-button" onClick={handleUndoRecommendation} disabled={loading}>Undo change <span>↶</span></button> : <button className="primary-button" onClick={handleApplyRecommendation} disabled={loading}>Apply recommendation <span>→</span></button>)}{appliedOverride && !recommendation && <button className="outline-button" onClick={handleUndoRecommendation} disabled={loading}>Undo change <span>↶</span></button>}<button className="primary-button" onClick={() => { setEditingItem(null); setShowForm(true) }}><span>+</span> Add item</button></div>}</div>
-      {error && <div className="notice error-notice">{error}</div>}
+      {error && <div className="notice error-notice">{error}<button className="retry-button" onClick={() => accountId && refreshAccount(accountId)} disabled={loading}>{loading ? 'Retrying...' : 'Retry loading account data'}</button></div>}
       {token === 'demo-local' && <div className="notice">Demo data: synthetic dates and transactions, stored only in this browser. <button className="text-button" onClick={() => { setToken(''); setAccountId(null); setDays([]); setItems([]); setOptimization(null); setNotice('') }}>Reset demo</button></div>}
       {appliedOverride && <div className="notice recommendation-applied">Applied as a hypothetical schedule change for {appliedOverride.bill_name}. This does not make or schedule a real payment.</div>}
       {recommendation && !recommendedBill && <div className="notice error-notice">This advisory move could not be matched to a saved bill, so it cannot be applied.</div>}
-      {activeView === 'Assumptions' ? <AssumptionsPanel /> : <>
+      {activeView === 'Settings' ? <SettingsPanel onExport={handleExport} onDelete={handleDeleteAccount} onLogout={handleLogout} loading={loading} /> : activeView === 'Assumptions' ? <AssumptionsPanel /> : <>
       <div className="summary-grid"><article className="balance-card"><div className="card-label">Current balance <span className="tiny-dot"></span></div><strong>{money(currentBalance)}</strong><p className="positive">{notice}</p><div className="balance-spark"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div></article><article className="metric-card"><div className="card-label">Lowest projected</div><strong className={lowest < 0 ? 'negative' : ''}>{money(lowest)}</strong><p>{negativeDays.length ? `${negativeDays.length} negative day${negativeDays.length === 1 ? '' : 's'}` : 'No negative days'}</p><div className="metric-rule negative-rule"></div></article><article className="metric-card"><div className="card-label">Income in view</div><strong>{money(incomeTotal)}</strong><p>{days.flatMap((day) => day.events).filter((event) => event.kind === 'income').length} deposits expected</p><div className="metric-rule income-rule"></div></article><article className="metric-card"><div className="card-label">Bills in view</div><strong>{money(billTotal)}</strong><p>{days.flatMap((day) => day.events).filter((event) => event.kind === 'bill').length} payments expected</p><div className="metric-rule bill-rule"></div></article></div>
       {activeView !== 'Projection' && <section className="item-library panel"><div className="panel-heading"><div><h2>{activeView} sources</h2><p>Saved items used by the projection engine</p></div><button className="text-button" onClick={() => { setItemKind(activeView === 'Income' ? 'income' : 'bill'); setEditingItem(null); setShowForm(true) }}>Add {activeView === 'Income' ? 'income' : 'bill'} <span>+</span></button></div>{!accountId && <p className="empty-state">Create your first account from the Projection tab to start saving items.</p>}{accountId && !activeItems.length && <p className="empty-state">No {activeView.toLowerCase()} sources yet.</p>}<div className="saved-items">{activeItems.map((item) => <div className={item.enabled ? 'saved-item' : 'saved-item disabled'} key={`${item.kind}-${item.item_id}`}><div><strong>{item.name}</strong><span>{item.recurrence.kind.toLowerCase().replace('_', ' ')} · {shortDate(item.recurrence.anchor)}{item.kind === 'bill' ? ` · ${item.flexibility?.toLowerCase()}` : ''}</span><span className="item-status" aria-label={`${item.name} is ${item.enabled ? 'active' : 'paused'}`}>{item.enabled ? 'Active' : 'Paused'}</span></div><strong>{money(amount(item.amount))}</strong><button className="toggle-button" onClick={() => { setEditingItem(item); setItemKind(item.kind); setForm({ name: item.name, amount: item.amount, date: item.recurrence.anchor, balance: '', recurrence: item.recurrence.kind, flexibility: item.flexibility ?? 'FLEXIBLE', windowStart: String(item.window_start ?? 15), windowEnd: String(item.window_end ?? 22), enabled: item.enabled }); setShowForm(true) }} disabled={loading} aria-label={`Edit ${item.name}`}>Edit</button><button className="toggle-button" onClick={() => handleToggleItem(item)} disabled={loading} aria-label={`${item.enabled ? 'Pause' : 'Resume'} ${item.name}`}>{item.enabled ? 'Pause' : 'Resume'}</button><button className="delete-button" onClick={() => setDeletingItem(item)} aria-label={`Delete ${item.name}`}>×</button></div>)}</div></section>}
       <div className="main-grid"><section className="projection-panel panel"><div className="panel-heading"><div><h2>90-day projection</h2><p>{days.length ? `${shortDate(days[0].date)} — ${shortDate(days[days.length - 1].date)}` : 'No projection yet'}</p></div><div className="legend"><span><i className="legend-line"></i> Balance</span><span><i className="legend-red"></i> Below zero</span></div></div><div className="chart"><div className="chart-y"><span>$3k</span><span>$2k</span><span>$1k</span><span>$0</span></div><div className="chart-area"><div className="gridline top"></div><div className="gridline mid-high"></div><div className="gridline mid"></div><div className="gridline zero"></div><div className="negative-zone"></div><svg viewBox="0 0 800 220" preserveAspectRatio="none" aria-label="Projected balance line chart"><path className="area-fill" d="M0 82 L80 65 L160 70 L240 224 L320 126 L400 92 L480 104 L560 64 L640 70 L720 35 L800 50 L800 220 L0 220Z"></path><path className="line-fill" d="M0 82 L80 65 L160 70 L240 224 L320 126 L400 92 L480 104 L560 64 L640 70 L720 35 L800 50"></path></svg><div className="chart-labels"><span>{days[0] ? shortDate(days[0].date) : 'Start'}</span><span>{days[2] ? shortDate(days[Math.min(2, days.length - 1)].date) : ''}</span><span>{days[4] ? shortDate(days[Math.min(4, days.length - 1)].date) : ''}</span><span>{days[6] ? shortDate(days[Math.min(6, days.length - 1)].date) : ''}</span><span>{days.length ? shortDate(days[Math.floor(days.length / 2)].date) : ''}</span><span>{days.length ? shortDate(days[days.length - 1].date) : ''}</span></div></div></div></section><aside className="recommendation panel"><div className="recommendation-icon">↗</div><p className="eyebrow">Advisory recommendation</p><h2>{accountId && optimization ? (optimization.moves.length ? 'Consider this scheduling move' : 'No schedule change needed') : negativeDays.length ? 'Review your first negative day' : 'Your projection is clear'}</h2><p>{accountId && optimization ? optimization.recommendation : negativeDays.length ? `Open ${shortDate(negativeDays[0].date)} to see which event pushes the balance below zero.` : 'This is sample projection data. Add your recurring income and bills to load a real advisory recommendation.'}</p>{optimization ? <div className="recommendation-metrics">{optimization.moves.length ? <span>{optimization.moves[0].bill_name}: {shortDate(optimization.moves[0].original_date)} → {shortDate(optimization.moves[0].new_date)}</span> : <span>No scheduling move proposed.</span>}<span>{optimizationMetric(optimization.before_min_balance)} → {optimizationMetric(optimization.after_min_balance)} minimum</span><span>{optimization.before_negative_days} → {optimization.after_negative_days} negative days</span></div> : null}<p className="fine-print">{loading ? 'Updating projection and advisory…' : accountId ? 'Advisory only. No changes have been applied.' : 'Sample projection fallback'}</p></aside></div>
