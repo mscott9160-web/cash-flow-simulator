@@ -68,6 +68,16 @@ $env:ENVIRONMENT = 'development'
 python -m uvicorn backend.api:app --host localhost --port 8000
 ```
 
+On macOS or Linux:
+
+```bash
+export AUTH_SECRET='local-development-auth-secret-32-bytes'
+export DATABASE_PATH="$PWD/cashflow-local.sqlite"
+export CORS_ORIGINS='http://localhost:5173'
+export ENVIRONMENT='development'
+python -m uvicorn backend.api:app --host localhost --port 8000
+```
+
 Start the web client in another:
 
 ```powershell
@@ -76,16 +86,32 @@ npm install
 npm run dev -- --host localhost --port 5173
 ```
 
+On macOS or Linux:
+
+```bash
+export VITE_API_URL='http://localhost:8000'
+npm install
+npm run dev -- --host localhost --port 5173
+```
+
 Open `http://localhost:5173`.
 
 ## Run The Mobile App
 
-The mobile app uses an Expo development build, matching the working Fade Society setup. It is not intended to run in an older public Expo Go binary.
+The mobile app uses an Expo development build and is not intended to run in an older public Expo Go binary.
 
 ```powershell
 cd mobile
 npm install
-$env:EXPO_PUBLIC_API_URL = 'http://192.168.1.183:8000'
+$env:EXPO_PUBLIC_API_URL = 'http://<your-lan-ip>:8000'
+npx expo start --dev-client --lan
+```
+
+On macOS or Linux:
+
+```bash
+cd mobile
+export EXPO_PUBLIC_API_URL='http://<your-lan-ip>:8000'
 npx expo start --dev-client --lan
 ```
 
