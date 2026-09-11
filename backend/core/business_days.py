@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+from functools import lru_cache
 
 
 _FIXED_HOLIDAYS = ((1, 1), (6, 19), (7, 4), (11, 11), (12, 25))
@@ -17,7 +18,8 @@ def _nth_weekday(year: int, month: int, weekday: int, occurrence: int) -> date:
     return first + timedelta(days=(weekday - first.weekday()) % 7 + (occurrence - 1) * 7)
 
 
-def federal_holidays(year: int) -> set[date]:
+@lru_cache(maxsize=None)
+def federal_holidays(year: int) -> frozenset[date]:
     holidays = {_observed(date(year, month, day)) for month, day in _FIXED_HOLIDAYS}
     holidays.update({
         _nth_weekday(year, 1, 0, 3),
@@ -27,7 +29,7 @@ def federal_holidays(year: int) -> set[date]:
         _nth_weekday(year, 10, 0, 2),
         _nth_weekday(year, 11, 3, 4),
     })
-    return holidays
+    return frozenset(holidays)
 
 
 def shift_business_day(day: date, direction: int) -> date:
