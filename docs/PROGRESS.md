@@ -14,7 +14,7 @@ A daily cash-flow simulator that identifies negative-balance days and searches f
 
 **Overall:** Core product complete; staging acceptance complete, production promotion pending
 **Last verified:** 2026-09-12
-**Latest development commit:** `98defa3`
+**Latest development commit:** `b648f46`
 **Stable portfolio commit:** `e43cf4a`
 
 ## Delivery Board
@@ -81,7 +81,7 @@ See [docs/DECISIONS.md](DECISIONS.md) for the rationale, acceptance criteria, an
 - The API is built from the existing Dockerfile; its Blueprint binds PostgreSQL `connectionString`, generates `AUTH_SECRET`, and sets `ENVIRONMENT=staging`.
 - The static site runs `npm ci && npm run build`, publishes `dist`, and receives the staging API HTTPS origin through `VITE_API_URL`.
 - `CORS_ORIGINS` is set to the default staging static-site origin. Service renames and custom domains require manually updating both URL values in Render.
-- No Render credentials, database URLs, or secrets were added to the repository. The current deployed staging URLs were verified with the staging E2E workflow after commits `e4bbe33`, `c3a8d51`, and `2b9c737`.
+- No Render credentials, database URLs, or secrets were added to the repository. The current deployed staging URLs were verified with the staging E2E workflow after commit `b648f46`.
 
 ## Staging E2E Verification
 
