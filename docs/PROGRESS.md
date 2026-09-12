@@ -12,22 +12,22 @@ A daily cash-flow simulator that identifies negative-balance days and searches f
 
 ## Current Status
 
-**Overall:** Core product complete; staging infrastructure prepared
-**Last verified:** 2026-08-24
-**Latest development commit:** `850b44f`
+**Overall:** Core product complete; staging operations hardening in progress
+**Last verified:** 2026-09-11
+**Latest development commit:** `2b9c737`
 **Stable portfolio commit:** `e43cf4a`
 
 ## Delivery Board
 
 | Phase | Status | Evidence |
 | --- | --- | --- |
-| 1. Projection engine | Complete | Recurrence, holidays, settlement shifts, decimal balances, 40 backend tests |
+| 1. Projection engine | Complete | Recurrence, holidays, settlement shifts, decimal balances, 44 backend tests |
 | 2. FastAPI and persistence | Complete | Auth, ownership, CRUD, SQLite, Alembic, SQLAlchemy, PostgreSQL URL support |
 | 3. Web product workflow | Complete | Login, setup, projection, item CRUD, pause/resume, optimizer, Apply/Undo |
 | 4. Mobile product workflow | Complete | Expo SDK 57 development client, projection, item management, optimizer Apply/Undo |
 | 5. Automated quality gates | Complete | Backend tests, Playwright E2E, web lint/build, mobile typecheck/Expo Doctor/export |
-| 6. Production persistence | In progress | Render PostgreSQL Blueprint prepared; hosted database and migration rehearsal remain |
-| 7. Production operations | In progress | Request IDs, safe logs, backup/restore scripts; hosted monitoring remains |
+| 6. Production persistence | In progress | Render PostgreSQL Blueprint deployed; hosted backup/restore rehearsal remains |
+| 7. Production operations | In progress | Request IDs, safe logs, auth rate limiting, and PostgreSQL rehearsal runbook; hosted monitoring remains |
 | 8. Public release | Planned | Staging deployment, security review, app-store release, public demo decision |
 
 ## Locked Release Decisions
@@ -42,7 +42,7 @@ See [docs/DECISIONS.md](DECISIONS.md) for the rationale, acceptance criteria, an
 
 ## Verified Quality Gates
 
-- Backend: `40` tests passing.
+- Backend: `44` tests passing, including auth abuse-limit coverage.
 - Web: ESLint passing.
 - Web: production build passing.
 - Browser: Playwright critical workflow passing locally and enforced in GitHub Actions; separate staging mode targets the Render URLs with synthetic accounts and no local servers.
@@ -50,7 +50,7 @@ See [docs/DECISIONS.md](DECISIONS.md) for the rationale, acceptance criteria, an
 - Mobile: Expo Doctor `21/21` checks passing.
 - Mobile: web, iOS, and Android exports passing.
 - Database: fresh Alembic baseline migration passing.
-- Operations: SQLite backup/restore smoke test passing.
+- Operations: SQLite backup/restore smoke test passing; PostgreSQL backup/restore rehearsal runbook published.
 
 ## What Is Working
 
@@ -69,9 +69,9 @@ See [docs/DECISIONS.md](DECISIONS.md) for the rationale, acceptance criteria, an
 
 ## Next Three Deliverables
 
-1. Provision a staging PostgreSQL database and run Alembic migrations against it.
-2. Deploy the API and web client to staging with production-style secrets and CORS.
-3. Add hosted logs, error tracking, uptime checks, and backup scheduling.
+1. Complete the synthetic PostgreSQL backup/restore rehearsal against a disposable Render database.
+2. Confirm the Render service scale and move rate limiting to a shared or edge control if more than one API instance is used.
+3. Add hosted logs, error tracking, uptime checks, backup scheduling, and alert ownership.
 
 ## Staging Preparation Checkpoint
 
@@ -79,7 +79,7 @@ See [docs/DECISIONS.md](DECISIONS.md) for the rationale, acceptance criteria, an
 - The API is built from the existing Dockerfile; its Blueprint binds PostgreSQL `connectionString`, generates `AUTH_SECRET`, and sets `ENVIRONMENT=staging`.
 - The static site runs `npm ci && npm run build`, publishes `dist`, and receives the staging API HTTPS origin through `VITE_API_URL`.
 - `CORS_ORIGINS` is set to the default staging static-site origin. Service renames and custom domains require manually updating both URL values in Render.
-- No Render credentials, database URLs, or secrets were added to the repository. The current deployed staging URLs were verified with the staging E2E workflow on 2026-08-24.
+- No Render credentials, database URLs, or secrets were added to the repository. The current deployed staging URLs were verified with the staging E2E workflow after commits `e4bbe33`, `c3a8d51`, and `2b9c737`.
 
 ## Staging E2E Verification
 
@@ -101,11 +101,12 @@ npm run e2e:staging
 
 ## Production Readiness Gaps
 
-- Hosted PostgreSQL provisioning and backup/restore rehearsal.
+- Hosted PostgreSQL backup/restore rehearsal and managed backup policy verification.
+- Confirm whether Render runs one or multiple API instances; process-local rate limiting is only sufficient for one instance.
 - Deployment observability and alerting integration.
 - Mobile dependency audit review without downgrading Expo SDK 57.
 - Broader real-device regression testing.
-- Full account-level export and deletion workflow.
+- Account-level export and deletion workflow is implemented and covered by local and hosted E2E.
 - App Store release metadata and support/privacy pages.
 - Public demo hosting and repository visibility decision.
 

@@ -117,7 +117,7 @@ npx expo-doctor
 npm run export
 ```
 
-The current checkpoint has 40 backend tests passing, a passing local and hosted Playwright workflow, a clean web build/lint, and Expo Doctor reporting 21/21 checks passed.
+The current checkpoint has 44 backend tests passing, a passing local and hosted Playwright workflow, a clean web build/lint, mobile typecheck passing, and Expo Doctor reporting 21/21 checks passed.
 
 Staging E2E requires `STAGING_WEB_URL` and optionally accepts `STAGING_API_URL` for a public `/health` check. Each run registers and logs in with a unique synthetic `example.com` account, then uses fictional bill and income values. Never enter real credentials or financial data. The current Render staging URLs are `https://cash-flow-simulator-staging-web.onrender.com` (web) and `https://cash-flow-simulator-staging-api.onrender.com` (API).
 
@@ -125,6 +125,7 @@ Staging E2E requires `STAGING_WEB_URL` and optionally accepts `STAGING_API_URL` 
 
 - `POST /api/v1/auth/register`
 - `POST /api/v1/auth/login`
+- Auth registration and login apply configurable per-IP rate limits through `AUTH_RATE_LIMIT_MAX_ATTEMPTS` and `AUTH_RATE_LIMIT_WINDOW_SECONDS`.
 - Account, income, and bill CRUD under `/api/v1/accounts`
 - `GET /api/v1/accounts/{account_id}/export` (authenticated account-level data export)
 - `DELETE /api/v1/accounts/{account_id}` (authenticated account-level cascade delete)
