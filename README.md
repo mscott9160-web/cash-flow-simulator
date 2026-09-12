@@ -177,3 +177,5 @@ Projections are estimates, not financial advice. Users should verify actual post
 ## Project Status
 
 The stable `master` release is ready for portfolio demonstration, recruiter/manager review, synthetic staging users, internal iOS testing, and stable deployment. It is not approved for real financial data or broad public production until Render-managed backup/PITR, hosted monitoring and alert ownership, the staging failure drill, owner-specific privacy/terms/support/retention details, Android physical-device testing, and TestFlight/App Store metadata are complete.
+
+The broader-production work is tracked as executable stories in [docs/RELEASE-READINESS-BACKLOG.md](docs/RELEASE-READINESS-BACKLOG.md). Product scope is frozen during this phase; do not add new financial-product features until release-readiness feedback is collected.

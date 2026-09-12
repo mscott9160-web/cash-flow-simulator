@@ -49,6 +49,8 @@ The current release is not approved for real financial data or broad public prod
 - Android physical-device testing.
 - TestFlight/App Store metadata and release preparation.
 
+The executable team stories for these gates are tracked in [RELEASE-READINESS-BACKLOG.md](RELEASE-READINESS-BACKLOG.md). Product scope is frozen while these stories are being completed.
+
 ## Locked Release Decisions
 
 - Hosting: Render Web Service, Static Site, and PostgreSQL.
