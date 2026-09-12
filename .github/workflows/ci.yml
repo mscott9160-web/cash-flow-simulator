@@ -14,12 +14,18 @@ jobs:
         run: python -m pip install -r backend/requirements.txt
       - name: Run backend tests
         run: python -m pytest backend/tests
+      - name: Audit Python dependencies
+        run: |
+          python -m pip install pip-audit
+          python -m pip_audit -r backend/requirements.txt
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - name: Install web dependencies
         run: npm ci
+      - name: Audit web production dependencies
+        run: npm audit --omit=dev --audit-level=high
       - name: Lint web
         run: npm run lint
       - name: Build web

@@ -42,3 +42,4 @@ Result: **No known vulnerabilities found.**
 - Web: clean for the audited production dependency set.
 - Mobile: high/moderate transitive findings remain; no force downgrade is approved.
 - Python: no known vulnerabilities reported by `pip-audit`.
+- CI now reruns the web and Python audits on every push and pull request.
