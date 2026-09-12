@@ -6,14 +6,15 @@ import sqlite3
 from time import perf_counter
 from uuid import uuid4
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from sqlalchemy.exc import IntegrityError
 
 from .core.models import Account, Bill, Flexibility, IncomeSource, RecurrenceRule, RecurrenceType
 from .core.optimizer import OptimizationResult, optimize_schedule
 from .core.projection import project
-from .auth import create_access_token, current_user_id, hash_password, verify_password
+from .auth import create_access_token, current_user_id, enforce_auth_rate_limit, hash_password, verify_password
 from .storage import ItemRecord, ScenarioStore
 from .settings import Settings
 
@@ -72,6 +73,40 @@ class OverrideResponse(BaseModel):
     occurrence_date: date
     new_date: date
     created_at: str
+
+
+class RecurrenceResponse(BaseModel):
+    kind: RecurrenceType
+    anchor: date
+    day_of_month: int | None
+    second_day_of_month: int | None
+
+
+class AccountExportAccountResponse(BaseModel):
+    id: int
+    starting_balance: str
+    as_of: date
+
+
+class AccountExportItemResponse(BaseModel):
+    id: int
+    item_id: int
+    kind: str
+    enabled: bool
+    name: str
+    amount: str
+    variance_pct: str
+    recurrence: RecurrenceResponse
+    flexibility: str | None = None
+    window_start: int | None = None
+    window_end: int | None = None
+
+
+class AccountExportResponse(BaseModel):
+    account: AccountExportAccountResponse
+    incomes: list[AccountExportItemResponse]
+    bills: list[AccountExportItemResponse]
+    overrides: list[OverrideResponse]
 
 
 class ProjectionRequest(BaseModel):
@@ -147,7 +182,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-store = ScenarioStore(settings.database_path)
+store = ScenarioStore(settings.database_url or settings.database_path)
 
 
 def _recurrence(request: RecurrenceRequest) -> RecurrenceRule:
@@ -169,19 +204,21 @@ def ready() -> dict[str, str]:
 
 
 @app.post("/api/v1/auth/register")
-def register(request: AuthRequest) -> dict[str, str]:
+def register(request: AuthRequest, http_request: Request) -> dict[str, str]:
+    enforce_auth_rate_limit(http_request, "register", settings.auth_rate_limit_max_attempts, settings.auth_rate_limit_window_seconds)
     email = request.email.strip().lower()
     if store.get_user_by_email(email) is not None:
         raise HTTPException(status_code=409, detail="Email is already registered")
     try:
         user_id = store.create_user(email, hash_password(request.password))
-    except sqlite3.IntegrityError as error:
+    except (sqlite3.IntegrityError, IntegrityError) as error:
         raise HTTPException(status_code=409, detail="Email is already registered") from error
     return {"access_token": create_access_token(user_id, settings.auth_secret), "token_type": "bearer"}
 
 
 @app.post("/api/v1/auth/login")
-def login(request: AuthRequest) -> dict[str, str]:
+def login(request: AuthRequest, http_request: Request) -> dict[str, str]:
+    enforce_auth_rate_limit(http_request, "login", settings.auth_rate_limit_max_attempts, settings.auth_rate_limit_window_seconds)
     user = store.get_user_by_email(request.email.strip().lower())
     if user is None or not verify_password(request.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid email or password", headers={"WWW-Authenticate": "Bearer"})
@@ -224,11 +261,34 @@ def _item_response(record: ItemRecord) -> dict:
     return response
 
 
+def _account_response(account_id: int, account: Account) -> dict:
+    return {"id": account_id, "starting_balance": str(account.starting_balance), "as_of": account.as_of}
+
+
 @app.get("/api/v1/accounts/{account_id}/incomes")
 def list_incomes(account_id: int, user_id: int = Depends(current_user_id)) -> list[dict]:
     if store.get_account(account_id, user_id) is None:
         raise HTTPException(status_code=404, detail="Account not found")
     return [_item_response(record) for record in store.list_items(account_id, "income")]
+
+
+@app.get("/api/v1/accounts/{account_id}/export", response_model=AccountExportResponse)
+def export_account(account_id: int, user_id: int = Depends(current_user_id)) -> dict:
+    account = store.get_account(account_id, user_id)
+    if account is None:
+        raise HTTPException(status_code=404, detail="Account not found")
+    return {
+        "account": _account_response(account_id, account),
+        "incomes": [_item_response(record) for record in store.list_items(account_id, "income")],
+        "bills": [_item_response(record) for record in store.list_items(account_id, "bill")],
+        "overrides": store.list_overrides(account_id),
+    }
+
+
+@app.delete("/api/v1/accounts/{account_id}", status_code=204)
+def delete_account(account_id: int, user_id: int = Depends(current_user_id)) -> None:
+    if not store.delete_account(account_id, user_id):
+        raise HTTPException(status_code=404, detail="Account not found")
 
 
 @app.put("/api/v1/accounts/{account_id}/incomes/{item_id}")
@@ -309,7 +369,7 @@ def create_override(account_id: int, request: OverrideRequest, user_id: int = De
         raise HTTPException(status_code=422, detail="item_id or bill_id is required")
     try:
         override_id = store.create_override(account_id, item_id, request.occurrence_date, request.new_date)
-    except sqlite3.IntegrityError as error:
+    except (sqlite3.IntegrityError, IntegrityError) as error:
         raise HTTPException(status_code=409, detail="Override already exists for this bill occurrence") from error
     if override_id is None:
         raise HTTPException(status_code=404, detail="Bill not found")

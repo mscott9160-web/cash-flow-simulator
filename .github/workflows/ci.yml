@@ -14,22 +14,43 @@ jobs:
         run: python -m pip install -r backend/requirements.txt
       - name: Run backend tests
         run: python -m pytest backend/tests
+      - name: Audit Python dependencies
+        run: |
+          python -m pip install pip-audit
+          python -m pip_audit -r backend/requirements.txt
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - name: Install web dependencies
         run: npm ci
+      - name: Audit web production dependencies
+        run: npm audit --omit=dev --audit-level=high
       - name: Lint web
         run: npm run lint
       - name: Build web
         run: npm run build
-      - name: Install Playwright browsers
+      - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
-      - name: Run end-to-end tests
+      - name: Run web E2E
         run: npm run e2e
-      - name: Mobile typecheck
+  mobile:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
         working-directory: mobile
-        run: |
-          npm ci
-          npm run typecheck
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - name: Install mobile dependencies
+        run: npm ci
+      - name: Typecheck mobile
+        run: npm run typecheck
+      - name: Check Expo project
+        run: npx expo-doctor
+      - name: Export mobile bundles
+        run: npm run export

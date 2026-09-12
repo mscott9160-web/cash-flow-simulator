@@ -9,6 +9,7 @@ export type SavedItem = { item_id: number; kind: 'income' | 'bill'; name: string
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 
 export type AuthResponse = { access_token: string; token_type: string; account_id?: number }
+export type AccountExport = { account: { id: number; starting_balance: string; as_of: string }; incomes: SavedItem[]; bills: SavedItem[]; overrides: Override[] }
 
 async function request(path: string, init: RequestInit = {}) {
   const token = localStorage.getItem('cashflow-access-token')
@@ -60,6 +61,15 @@ export async function getItems(accountId: number, kind: 'income' | 'bill') {
 export async function getOverrides(accountId: number) {
   const response = await request(`/api/v1/accounts/${accountId}/overrides`)
   return (await response.json()) as Override[]
+}
+
+export async function exportAccount(accountId: number) {
+  const response = await request(`/api/v1/accounts/${accountId}/export`)
+  return await response.json() as AccountExport
+}
+
+export async function deleteAccount(accountId: number) {
+  await request(`/api/v1/accounts/${accountId}`, { method: 'DELETE' })
 }
 
 export async function createOverride(accountId: number, itemId: number, occurrenceDate: string, newDate: string) {

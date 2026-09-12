@@ -2,9 +2,9 @@
 
 Daily cash-flow projection for people who have enough money across the month but still risk going negative on a specific day.
 
-[![CI](https://github.com/mscott9160-web/cash-flow-simulator/actions/workflows/ci.yml/badge.svg)](https://github.com/mscott9160-web/cash-flow-simulator/actions/workflows/ci.yml) [![Stable](https://img.shields.io/badge/stable-master-20251F)](https://github.com/mscott9160-web/cash-flow-simulator/tree/master)
+[![CI](https://github.com/mscott9160-web/cash-flow-simulator/actions/workflows/ci.yml/badge.svg)](https://github.com/mscott9160-web/cash-flow-simulator/actions/workflows/ci.yml) [![Development](https://img.shields.io/badge/development-test--com%2Fdevelopment-38654C)](https://github.com/mscott9160-web/cash-flow-simulator/tree/test-com/development) [![Stable](https://img.shields.io/badge/stable-master-20251F)](https://github.com/mscott9160-web/cash-flow-simulator/tree/master)
 
-**Progress:** [View the portfolio progress board](docs/PROGRESS.md)
+**Progress:** [View the portfolio progress board](docs/PROGRESS.md) · [Read the release decisions](docs/DECISIONS.md)
 
 > Given what you make and what you owe, show which days go negative and what single scheduling change could improve them.
 
@@ -68,16 +68,6 @@ $env:ENVIRONMENT = 'development'
 python -m uvicorn backend.api:app --host localhost --port 8000
 ```
 
-On macOS or Linux:
-
-```bash
-export AUTH_SECRET='local-development-auth-secret-32-bytes'
-export DATABASE_PATH="$PWD/cashflow-local.sqlite"
-export CORS_ORIGINS='http://localhost:5173'
-export ENVIRONMENT='development'
-python -m uvicorn backend.api:app --host localhost --port 8000
-```
-
 Start the web client in another:
 
 ```powershell
@@ -86,32 +76,16 @@ npm install
 npm run dev -- --host localhost --port 5173
 ```
 
-On macOS or Linux:
-
-```bash
-export VITE_API_URL='http://localhost:8000'
-npm install
-npm run dev -- --host localhost --port 5173
-```
-
 Open `http://localhost:5173`.
 
 ## Run The Mobile App
 
-The mobile app uses an Expo development build and is not intended to run in an older public Expo Go binary.
+The mobile app uses an Expo development build, matching the working Fade Society setup. It is not intended to run in an older public Expo Go binary.
 
 ```powershell
 cd mobile
 npm install
-$env:EXPO_PUBLIC_API_URL = 'http://<your-lan-ip>:8000'
-npx expo start --dev-client --lan
-```
-
-On macOS or Linux:
-
-```bash
-cd mobile
-export EXPO_PUBLIC_API_URL='http://<your-lan-ip>:8000'
+$env:EXPO_PUBLIC_API_URL = 'http://192.168.1.183:8000'
 npx expo start --dev-client --lan
 ```
 
@@ -131,6 +105,11 @@ python -m pytest backend/tests
 npx playwright install chromium
 npm run e2e
 
+# External staging browser workflow (does not start local servers)
+$env:STAGING_WEB_URL = 'https://cash-flow-simulator-staging-web.onrender.com'
+$env:STAGING_API_URL = 'https://cash-flow-simulator-staging-api.onrender.com'
+npm run e2e:staging
+
 # Mobile
 cd mobile
 npm run typecheck
@@ -138,23 +117,56 @@ npx expo-doctor
 npm run export
 ```
 
-The current checkpoint has 38 backend tests passing, a passing Playwright critical workflow, a clean web build/lint, and Expo Doctor reporting 21/21 checks passed.
+The current checkpoint has 44 backend tests passing, a passing local and hosted Playwright workflow, a clean web build/lint, mobile typecheck passing, and Expo Doctor reporting 21/21 checks passed.
+
+Staging E2E requires `STAGING_WEB_URL` and optionally accepts `STAGING_API_URL` for a public `/health` check. Each run registers and logs in with a unique synthetic `example.com` account, then uses fictional bill and income values. Never enter real credentials or financial data. The current Render staging URLs are `https://cash-flow-simulator-staging-web.onrender.com` (web) and `https://cash-flow-simulator-staging-api.onrender.com` (API).
 
 ## API Surface
 
 - `POST /api/v1/auth/register`
 - `POST /api/v1/auth/login`
+- Auth registration and login apply configurable per-IP rate limits through `AUTH_RATE_LIMIT_MAX_ATTEMPTS` and `AUTH_RATE_LIMIT_WINDOW_SECONDS`.
 - Account, income, and bill CRUD under `/api/v1/accounts`
+- `GET /api/v1/accounts/{account_id}/export` (authenticated account-level data export)
+- `DELETE /api/v1/accounts/{account_id}` (authenticated account-level cascade delete)
 - `GET /api/v1/accounts/{account_id}/projection`
 - `GET /api/v1/accounts/{account_id}/optimization`
 - Reversible override create/list/delete endpoints
 - Public `GET /health` and `GET /ready`
 
-## Operational Notes
+## Persistence And Operations
 
-The API reads `DATABASE_PATH`, `CORS_ORIGINS`, `AUTH_SECRET`, and `ENVIRONMENT`. Production requires an explicit `AUTH_SECRET`. Requests receive an `X-Request-ID`; logs contain request metadata only, not credentials or financial payloads.
+The API reads `DATABASE_URL`, `DATABASE_PATH`, `CORS_ORIGINS`, `AUTH_SECRET`, and `ENVIRONMENT`. `DATABASE_URL` takes precedence and accepts SQLAlchemy URLs such as `postgresql+psycopg://user:password@host/database`; when it is unset, local SQLite uses `DATABASE_PATH` or `cashflow.db`. Production requires an explicit `AUTH_SECRET`. Requests receive an `X-Request-ID`; logs contain request metadata only, not credentials or financial payloads.
+
+The default compose setup remains SQLite. To start the optional local PostgreSQL service, run `docker compose --profile postgres up postgres`, then point the backend at its URL, for example `DATABASE_URL=postgresql+psycopg://cashflow:cashflow-local-only@localhost:5432/cashflow`. Run `alembic upgrade head` against the selected database before starting a production deployment. Alembic uses the same `DATABASE_URL` precedence as the API.
 
 SQLite backup and restore utilities are in `scripts/backup_sqlite.py` and `scripts/restore_sqlite.py`. Stop the API before restoring a live database.
+
+For PostgreSQL backup and restore practice, follow [docs/POSTGRES-BACKUP-RESTORE-REHEARSAL.md](docs/POSTGRES-BACKUP-RESTORE-REHEARSAL.md). It uses a disposable restore database and identifies the Render dashboard checks that cannot be automated from this repository.
+
+Policy and support drafts are collected in [docs/PRIVACY.md](docs/PRIVACY.md), [docs/TERMS.md](docs/TERMS.md), [docs/DATA-RETENTION.md](docs/DATA-RETENTION.md), and [docs/SUPPORT.md](docs/SUPPORT.md). They require owner review and real contact/provider details before invited real-data testing.
+
+The monitoring and alerting requirements are documented in [docs/OBSERVABILITY.md](docs/OBSERVABILITY.md). Render dashboard configuration and the staging failure drill remain manual release gates.
+
+GitHub Actions also runs a scheduled staging smoke check every 30 minutes for the API liveness/readiness endpoints and web origin. It can be started manually from the Actions tab with the `Staging Health` workflow.
+
+## Deploy Staging To Render
+
+The locked hosting decision is represented by [render.yaml](render.yaml). It defines separate staging services for the Dockerized FastAPI API, a Render static web service for the Vite site, and PostgreSQL. It contains no credentials or committed secrets.
+
+1. Create or select the Render team that owns staging, then choose **New > Blueprint** and connect this repository on the `test-com/development` branch.
+2. Review the services from `render.yaml` and apply the Blueprint. Render supplies the API `DATABASE_URL` from the staging database and generates `AUTH_SECRET`.
+3. Before inviting testers, confirm the API service has `ENVIRONMENT=staging` and that its health check is `GET /health`.
+4. Rehearse or apply the schema migration against the Render database from a trusted local shell using the database connection string copied from Render:
+
+    ```powershell
+    $env:DATABASE_URL = 'postgresql+psycopg://<user>:<password>@<host>/<database>'
+    python -m alembic upgrade head
+    ```
+
+5. Verify the static site's `VITE_API_URL` points to the API's HTTPS origin and the API's `CORS_ORIGINS` contains the static site's HTTPS origin. These values are set to the default staging `onrender.com` URLs in `render.yaml`.
+
+Render-specific manual configuration: replace both URL values if a service is renamed or a custom domain is added. Keep `CORS_ORIGINS` as a comma-separated list of complete origins, with no trailing path. Configure Render-managed backups, log retention, alerting, and access permissions in the dashboard; those operational settings are intentionally not encoded here. Do not paste database URLs or generated secrets into the repository.
 
 ## Scope Boundary
 
