@@ -12,9 +12,9 @@ A daily cash-flow simulator that identifies negative-balance days and searches f
 
 ## Current Status
 
-**Overall:** Core product complete; staging operations hardening in progress
-**Last verified:** 2026-09-11
-**Latest development commit:** `2b9c737`
+**Overall:** Core product complete; staging acceptance complete, production promotion pending
+**Last verified:** 2026-09-12
+**Latest development commit:** `98defa3`
 **Stable portfolio commit:** `e43cf4a`
 
 ## Delivery Board
@@ -28,7 +28,7 @@ A daily cash-flow simulator that identifies negative-balance days and searches f
 | 5. Automated quality gates | Complete | Backend tests, Playwright E2E, web lint/build, mobile typecheck/Expo Doctor/export |
 | 6. Production persistence | In progress | Render PostgreSQL Blueprint deployed; hosted backup/restore rehearsal remains |
 | 7. Production operations | In progress | Request IDs, safe logs, auth rate limiting, PostgreSQL rehearsal runbook, dependency audit, policy/support drafts, observability runbook, and scheduled staging health checks; hosted alert ownership remains |
-| 8. Public release | Planned | Staging deployment, security review, app-store release, public demo decision |
+| 8. Public release | Planned | Production promotion, App Store/TestFlight release metadata, public demo decision |
 
 ## Locked Release Decisions
 
@@ -49,6 +49,7 @@ See [docs/DECISIONS.md](DECISIONS.md) for the rationale, acceptance criteria, an
 - Mobile: TypeScript passing.
 - Mobile: Expo Doctor `21/21` checks passing.
 - Mobile: web, iOS, and Android exports passing.
+- Mobile: EAS iOS staging build finished and physical-device acceptance passed on 2026-09-12, including authentication, projection, bill flexibility, optimizer Apply/Undo, Settings/export/delete, retry, and session persistence.
 - Database: fresh Alembic baseline migration passing.
 - Operations: SQLite backup/restore smoke test passing; PostgreSQL backup/restore rehearsal runbook published.
 - Dependencies: web and Python production audits report no known vulnerabilities; mobile transitive findings are documented without an Expo-breaking force downgrade.
@@ -107,7 +108,7 @@ npm run e2e:staging
 - Deployment observability and alerting integration.
 - Mobile dependency audit review without downgrading Expo SDK 57.
 - Mobile dependency remediation compatible with Expo SDK 57, or a documented release exception review.
-- Broader real-device regression testing.
+- Broader real-device regression testing beyond the completed iOS staging acceptance pass.
 - Account-level export and deletion workflow is implemented and covered by local and hosted E2E.
 - Owner review and publication of privacy, terms, retention, and support drafts.
 - Configure hosted monitoring, alert routing, retention, and complete the synthetic staging failure drill.
