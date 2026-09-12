@@ -176,4 +176,4 @@ Projections are estimates, not financial advice. Users should verify actual post
 
 ## Project Status
 
-The web and mobile core workflows are implemented. Remaining production work includes hosted PostgreSQL operations, deployment observability integration, dependency audit remediation, store-release preparation, and broader real-device testing.
+The stable `master` release is ready for portfolio demonstration, recruiter/manager review, synthetic staging users, internal iOS testing, and stable deployment. It is not approved for real financial data or broad public production until Render-managed backup/PITR, hosted monitoring and alert ownership, the staging failure drill, owner-specific privacy/terms/support/retention details, Android physical-device testing, and TestFlight/App Store metadata are complete.

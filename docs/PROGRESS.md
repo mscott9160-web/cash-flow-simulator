@@ -12,10 +12,10 @@ A daily cash-flow simulator that identifies negative-balance days and searches f
 
 ## Current Status
 
-**Overall:** Core product complete; staging acceptance complete, production promotion pending
+**Overall:** Core product complete; stable portfolio release published, public-production hardening deferred
 **Last verified:** 2026-09-12
-**Latest development commit:** `b648f46`
-**Stable portfolio commit:** `e43cf4a`
+**Latest development commit:** `682596c`
+**Stable portfolio commit:** `e0b59db`
 
 ## Delivery Board
 
@@ -26,9 +26,28 @@ A daily cash-flow simulator that identifies negative-balance days and searches f
 | 3. Web product workflow | Complete | Login, setup, projection, item CRUD, pause/resume, optimizer, Apply/Undo |
 | 4. Mobile product workflow | Complete | Expo SDK 57 development client, projection, item management, optimizer Apply/Undo |
 | 5. Automated quality gates | Complete | Backend tests, Playwright E2E, web lint/build, mobile typecheck/Expo Doctor/export |
-| 6. Production persistence | In progress | Render PostgreSQL Blueprint deployed; hosted backup/restore rehearsal remains |
+| 6. Production persistence | Portfolio-ready | PostgreSQL 18 backup/restore rehearsal passed locally; Render-managed backup/PITR policy remains a public-production gate |
 | 7. Production operations | In progress | Request IDs, safe logs, auth rate limiting, PostgreSQL rehearsal runbook, dependency audit, policy/support drafts, observability runbook, and scheduled staging health checks; hosted alert ownership remains |
-| 8. Public release | Planned | Production promotion, App Store/TestFlight release metadata, public demo decision |
+| 8. Public release | Deferred | App Store/TestFlight metadata, public demo decision, and provider-level production controls |
+
+## Approved Release Audience
+
+The current release is ready for:
+
+- Portfolio demonstration.
+- Recruiter and manager review.
+- Synthetic staging users.
+- Internal iOS testing.
+- Stable `master` deployment.
+
+The current release is not approved for real financial data or broad public production until these provider-level gates are complete:
+
+- Render-managed backup and point-in-time recovery decision.
+- Hosted monitoring and named alert ownership.
+- Synthetic staging failure drill.
+- Final owner details for privacy, terms, support, and retention.
+- Android physical-device testing.
+- TestFlight/App Store metadata and release preparation.
 
 ## Locked Release Decisions
 
@@ -71,9 +90,9 @@ See [docs/DECISIONS.md](DECISIONS.md) for the rationale, acceptance criteria, an
 
 ## Next Three Deliverables
 
-1. Complete the synthetic PostgreSQL backup/restore rehearsal against a disposable Render database.
-2. Confirm the Render service scale and move rate limiting to a shared or edge control if more than one API instance is used.
-3. Add hosted logs, error tracking, uptime checks, backup scheduling, and alert ownership.
+1. Keep the stable portfolio deployment available for review and synthetic staging use.
+2. Decide whether to fund Render-managed backup/PITR and configure hosted alert ownership.
+3. Complete Android/TestFlight release work only if public or broader internal distribution is desired.
 
 ## Staging Preparation Checkpoint
 
@@ -103,11 +122,10 @@ npm run e2e:staging
 
 ## Production Readiness Gaps
 
-- Hosted PostgreSQL backup/restore rehearsal and managed backup policy verification.
+- Hosted PostgreSQL backup/restore rehearsal passed against a local PostgreSQL 18 restore target; managed backup policy verification remains provider-dependent.
 - Confirm whether Render runs one or multiple API instances; process-local rate limiting is only sufficient for one instance.
 - Deployment observability and alerting integration.
 - Mobile dependency audit review without downgrading Expo SDK 57.
-- Mobile dependency remediation compatible with Expo SDK 57, or a documented release exception review.
 - Broader real-device regression testing beyond the completed iOS staging acceptance pass.
 - Account-level export and deletion workflow is implemented and covered by local and hosted E2E.
 - Owner review and publication of privacy, terms, retention, and support drafts.
