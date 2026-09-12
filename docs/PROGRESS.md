@@ -27,7 +27,7 @@ A daily cash-flow simulator that identifies negative-balance days and searches f
 | 4. Mobile product workflow | Complete | Expo SDK 57 development client, projection, item management, optimizer Apply/Undo |
 | 5. Automated quality gates | Complete | Backend tests, Playwright E2E, web lint/build, mobile typecheck/Expo Doctor/export |
 | 6. Production persistence | In progress | Render PostgreSQL Blueprint deployed; hosted backup/restore rehearsal remains |
-| 7. Production operations | In progress | Request IDs, safe logs, auth rate limiting, PostgreSQL rehearsal runbook, dependency audit, policy/support drafts, and observability runbook; hosted monitoring remains |
+| 7. Production operations | In progress | Request IDs, safe logs, auth rate limiting, PostgreSQL rehearsal runbook, dependency audit, policy/support drafts, observability runbook, and scheduled staging health checks; hosted alert ownership remains |
 | 8. Public release | Planned | Staging deployment, security review, app-store release, public demo decision |
 
 ## Locked Release Decisions

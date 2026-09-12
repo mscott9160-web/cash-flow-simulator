@@ -148,6 +148,8 @@ Policy and support drafts are collected in [docs/PRIVACY.md](docs/PRIVACY.md), [
 
 The monitoring and alerting requirements are documented in [docs/OBSERVABILITY.md](docs/OBSERVABILITY.md). Render dashboard configuration and the staging failure drill remain manual release gates.
 
+GitHub Actions also runs a scheduled staging smoke check every 30 minutes for the API liveness/readiness endpoints and web origin. It can be started manually from the Actions tab with the `Staging Health` workflow.
+
 ## Deploy Staging To Render
 
 The locked hosting decision is represented by [render.yaml](render.yaml). It defines separate staging services for the Dockerized FastAPI API, a Render static web service for the Vite site, and PostgreSQL. It contains no credentials or committed secrets.
