@@ -10,7 +10,7 @@ This runbook rehearses a logical backup and restore of the Render PostgreSQL dat
 
 ## Backup
 
-This repository includes `scripts/rehearse_postgres_backup.ps1` for environments without native PostgreSQL client tools. It uses the local Docker PostgreSQL image and requires both `PGSOURCE` and `PGTARGET` to be supplied in the local shell. The target must be a disposable database; the script asks for an explicit `RESTORE` confirmation before dropping its public schema.
+This repository includes `scripts/rehearse_postgres_backup.ps1` for environments without native PostgreSQL client tools. It uses the PostgreSQL 18 Docker client image, matching the current Render database major version, and requires both `PGSOURCE` and `PGTARGET` to be supplied in the local shell. The target must be a disposable database; the script asks for an explicit `RESTORE` confirmation before dropping its public schema. Use `-Image` to select another client image if the database major version changes.
 
 ```powershell
 $env:PGSOURCE = Read-Host 'Paste staging PostgreSQL URL'

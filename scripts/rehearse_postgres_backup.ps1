@@ -1,7 +1,7 @@
 param(
     [string]$SourceUrl = $env:PGSOURCE,
     [string]$TargetUrl = $env:PGTARGET,
-    [string]$Image = 'postgres:16-alpine'
+    [string]$Image = 'postgres:18-alpine'
 )
 
 $ErrorActionPreference = 'Stop'
