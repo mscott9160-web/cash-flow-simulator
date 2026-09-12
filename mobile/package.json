@@ -12,15 +12,15 @@
     "export": "expo export"
   },
   "dependencies": {
-    "@expo/metro-runtime": "~57.0.13",
+    "@expo/metro-runtime": "~57.0.15",
     "@expo/vector-icons": "^15.0.2",
-    "expo": "~57.0.16",
-    "expo-dev-client": "~57.0.15",
-    "expo-font": "~57.0.1",
-    "expo-secure-store": "~57.0.1",
+    "expo": "~57.0.22",
+    "expo-dev-client": "~57.0.19",
+    "expo-font": "~57.0.4",
+    "expo-secure-store": "~57.0.4",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-native": "0.86.2",
+    "react-native": "0.86.3",
     "react-native-web": "^0.21.0"
   },
   "devDependencies": {
