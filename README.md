@@ -146,6 +146,8 @@ For PostgreSQL backup and restore practice, follow [docs/POSTGRES-BACKUP-RESTORE
 
 Policy and support drafts are collected in [docs/PRIVACY.md](docs/PRIVACY.md), [docs/TERMS.md](docs/TERMS.md), [docs/DATA-RETENTION.md](docs/DATA-RETENTION.md), and [docs/SUPPORT.md](docs/SUPPORT.md). They require owner review and real contact/provider details before invited real-data testing.
 
+The monitoring and alerting requirements are documented in [docs/OBSERVABILITY.md](docs/OBSERVABILITY.md). Render dashboard configuration and the staging failure drill remain manual release gates.
+
 ## Deploy Staging To Render
 
 The locked hosting decision is represented by [render.yaml](render.yaml). It defines separate staging services for the Dockerized FastAPI API, a Render static web service for the Vite site, and PostgreSQL. It contains no credentials or committed secrets.
