@@ -35,7 +35,9 @@ test('registers, saves a scenario, and exposes saved item controls', async ({ pa
 
   await expect(page.getByText('Card payment').first()).toBeVisible()
   const projectionPanel = page.locator('section.projection-panel').first()
+  await expect(page.locator('section.projection-panel')).toHaveCount(1)
   await expect(projectionPanel.getByRole('heading', { name: '90-day projection' })).toBeVisible()
+  await expect(projectionPanel.locator('.panel-heading p')).toHaveText(/\w{3} \d{2} — \w{3} \d{2}/)
   await expect(projectionPanel.locator('svg[aria-label="Projected balance line chart"]')).toBeVisible()
 
   await page.getByRole('button', { name: /Add item/ }).click()
