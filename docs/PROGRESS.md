@@ -27,7 +27,7 @@ A daily cash-flow simulator that identifies negative-balance days and searches f
 | 4. Mobile product workflow | Complete | Expo SDK 57 development client, projection, item management, optimizer Apply/Undo |
 | 5. Automated quality gates | Complete | Backend tests, Playwright E2E, web lint/build, mobile typecheck/Expo Doctor/export |
 | 6. Production persistence | In progress | Render PostgreSQL Blueprint deployed; hosted backup/restore rehearsal remains |
-| 7. Production operations | In progress | Request IDs, safe logs, auth rate limiting, PostgreSQL rehearsal runbook, and dependency audit record; hosted monitoring remains |
+| 7. Production operations | In progress | Request IDs, safe logs, auth rate limiting, PostgreSQL rehearsal runbook, dependency audit, and policy/support drafts; hosted monitoring remains |
 | 8. Public release | Planned | Staging deployment, security review, app-store release, public demo decision |
 
 ## Locked Release Decisions
@@ -109,7 +109,7 @@ npm run e2e:staging
 - Mobile dependency remediation compatible with Expo SDK 57, or a documented release exception review.
 - Broader real-device regression testing.
 - Account-level export and deletion workflow is implemented and covered by local and hosted E2E.
-- App Store release metadata and support/privacy pages.
+- Owner review and publication of privacy, terms, retention, and support drafts.
 - Public demo hosting and repository visibility decision.
 
 ## Scope Guardrails
