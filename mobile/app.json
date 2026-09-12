@@ -8,7 +8,7 @@
     "scheme": "cashflow",
     "ios": {
       "supportsTablet": true,
-      	"bundleIdentifier": "com.developerfromspace.cashflow",
+      "bundleIdentifier": "com.developerfromspace.cashflow",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -16,7 +16,8 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#38654C"
-      }
+      },
+      "package": "com.developerfromspace.cashflow"
     },
     "plugins": [
       "expo-secure-store",
