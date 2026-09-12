@@ -27,7 +27,7 @@ A daily cash-flow simulator that identifies negative-balance days and searches f
 | 4. Mobile product workflow | Complete | Expo SDK 57 development client, projection, item management, optimizer Apply/Undo |
 | 5. Automated quality gates | Complete | Backend tests, Playwright E2E, web lint/build, mobile typecheck/Expo Doctor/export |
 | 6. Production persistence | In progress | Render PostgreSQL Blueprint deployed; hosted backup/restore rehearsal remains |
-| 7. Production operations | In progress | Request IDs, safe logs, auth rate limiting, and PostgreSQL rehearsal runbook; hosted monitoring remains |
+| 7. Production operations | In progress | Request IDs, safe logs, auth rate limiting, PostgreSQL rehearsal runbook, and dependency audit record; hosted monitoring remains |
 | 8. Public release | Planned | Staging deployment, security review, app-store release, public demo decision |
 
 ## Locked Release Decisions
@@ -51,6 +51,7 @@ See [docs/DECISIONS.md](DECISIONS.md) for the rationale, acceptance criteria, an
 - Mobile: web, iOS, and Android exports passing.
 - Database: fresh Alembic baseline migration passing.
 - Operations: SQLite backup/restore smoke test passing; PostgreSQL backup/restore rehearsal runbook published.
+- Dependencies: web production audit reports zero vulnerabilities; mobile transitive findings are documented without an Expo-breaking force downgrade; Python audit remains pending in the CI/deployment interpreter.
 
 ## What Is Working
 
@@ -105,6 +106,7 @@ npm run e2e:staging
 - Confirm whether Render runs one or multiple API instances; process-local rate limiting is only sufficient for one instance.
 - Deployment observability and alerting integration.
 - Mobile dependency audit review without downgrading Expo SDK 57.
+- Python dependency audit in the same interpreter used by CI/deployment.
 - Broader real-device regression testing.
 - Account-level export and deletion workflow is implemented and covered by local and hosted E2E.
 - App Store release metadata and support/privacy pages.
