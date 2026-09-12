@@ -51,7 +51,7 @@ See [docs/DECISIONS.md](DECISIONS.md) for the rationale, acceptance criteria, an
 - Mobile: web, iOS, and Android exports passing.
 - Database: fresh Alembic baseline migration passing.
 - Operations: SQLite backup/restore smoke test passing; PostgreSQL backup/restore rehearsal runbook published.
-- Dependencies: web production audit reports zero vulnerabilities; mobile transitive findings are documented without an Expo-breaking force downgrade; Python audit remains pending in the CI/deployment interpreter.
+- Dependencies: web and Python production audits report no known vulnerabilities; mobile transitive findings are documented without an Expo-breaking force downgrade.
 
 ## What Is Working
 
@@ -106,7 +106,7 @@ npm run e2e:staging
 - Confirm whether Render runs one or multiple API instances; process-local rate limiting is only sufficient for one instance.
 - Deployment observability and alerting integration.
 - Mobile dependency audit review without downgrading Expo SDK 57.
-- Python dependency audit in the same interpreter used by CI/deployment.
+- Mobile dependency remediation compatible with Expo SDK 57, or a documented release exception review.
 - Broader real-device regression testing.
 - Account-level export and deletion workflow is implemented and covered by local and hosted E2E.
 - App Store release metadata and support/privacy pages.
