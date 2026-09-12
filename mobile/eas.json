@@ -11,6 +11,12 @@
     "preview": {
       "distribution": "internal"
     },
+    "staging": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://cash-flow-simulator-staging-api.onrender.com"
+      }
+    },
     "production": {
       "autoIncrement": true
     }
