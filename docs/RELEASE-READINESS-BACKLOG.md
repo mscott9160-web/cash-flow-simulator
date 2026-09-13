@@ -65,6 +65,8 @@ As the service owner, I need health, error, authentication, and database alerts 
 
 **Decision options:** See [OPERATIONS-INPUTS.md](OPERATIONS-INPUTS.md) for monitoring provider, alert destination, retention, and service-scale choices.
 
+**Execution steps:** See [PROVIDER-EXECUTION-CHECKLIST.md](PROVIDER-EXECUTION-CHECKLIST.md) for the provider clicks, failure drill, policy handoff, and deferred-device procedures.
+
 **Definition of done**
 
 A service failure produces an actionable alert with an owner and a runbook link.

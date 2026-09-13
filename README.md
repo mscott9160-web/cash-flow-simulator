@@ -152,6 +152,8 @@ The current backup/PITR posture is documented in [docs/OPERATIONS-DECISION.md](d
 
 The remaining provider and owner choices are listed with recommended defaults in [docs/OPERATIONS-INPUTS.md](docs/OPERATIONS-INPUTS.md).
 
+Step-by-step actions for Render notifications, the synthetic failure drill, policy completion, deferred Android validation, and future TestFlight work are in [docs/PROVIDER-EXECUTION-CHECKLIST.md](docs/PROVIDER-EXECUTION-CHECKLIST.md).
+
 GitHub Actions also runs a scheduled staging smoke check every 30 minutes for the API liveness/readiness endpoints and web origin. It can be started manually from the Actions tab with the `Staging Health` workflow.
 
 ## Deploy Staging To Render
