@@ -26,7 +26,7 @@ A daily cash-flow simulator that identifies negative-balance days and searches f
 | 3. Web product workflow | Complete | Login, setup, projection, item CRUD, pause/resume, optimizer, Apply/Undo |
 | 4. Mobile product workflow | Complete | Expo SDK 57 development client, projection, item management, optimizer Apply/Undo |
 | 5. Automated quality gates | Complete | Backend tests, Playwright E2E, web lint/build, mobile typecheck/Expo Doctor/export |
-| 6. Production persistence | Portfolio-ready | PostgreSQL 18 backup/restore rehearsal passed locally; Render-managed backup/PITR policy remains a public-production gate |
+| 6. Production persistence | Decided for current audience | PostgreSQL 18 backup/restore rehearsal passed locally; staging remains synthetic-only until Render-managed backup/PITR is approved |
 | 7. Production operations | In progress | Request IDs, safe logs, auth rate limiting, PostgreSQL rehearsal runbook, dependency audit, policy/support drafts, observability runbook, and scheduled staging health checks; hosted alert ownership remains |
 | 8. Public release | Deferred | App Store/TestFlight metadata, public demo decision, and provider-level production controls |
 
@@ -126,6 +126,7 @@ npm run e2e:staging
 ## Production Readiness Gaps
 
 - Hosted PostgreSQL backup/restore rehearsal passed against a local PostgreSQL 18 restore target; managed backup policy verification remains provider-dependent.
+- Operations decision: current Render Free-plan staging remains synthetic-only; see [OPERATIONS-DECISION.md](OPERATIONS-DECISION.md).
 - Confirm whether Render runs one or multiple API instances; process-local rate limiting is only sufficient for one instance.
 - Deployment observability and alerting integration.
 - Mobile dependency audit review without downgrading Expo SDK 57.

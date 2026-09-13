@@ -148,6 +148,8 @@ Policy and support drafts are collected in [docs/PRIVACY.md](docs/PRIVACY.md), [
 
 The monitoring and alerting requirements are documented in [docs/OBSERVABILITY.md](docs/OBSERVABILITY.md). Render dashboard configuration and the staging failure drill remain manual release gates.
 
+The current backup/PITR posture is documented in [docs/OPERATIONS-DECISION.md](docs/OPERATIONS-DECISION.md): staging remains synthetic-only until managed recovery is approved and verified.
+
 GitHub Actions also runs a scheduled staging smoke check every 30 minutes for the API liveness/readiness endpoints and web origin. It can be started manually from the Actions tab with the `Staging Health` workflow.
 
 ## Deploy Staging To Render

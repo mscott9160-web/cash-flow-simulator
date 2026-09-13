@@ -9,7 +9,7 @@
 
 **Owner:** Product owner + technical lead
 **Priority:** Critical
-**Status:** Ready to start
+**Status:** Decided: synthetic-only until managed recovery is approved
 
 **Story**
 
@@ -32,6 +32,10 @@ As the service owner, I need a documented Render database recovery decision so I
 **Definition of done**
 
 The release decision is written down and a reviewer can identify exactly what happens after database loss.
+
+**Decision record**
+
+See [OPERATIONS-DECISION.md](OPERATIONS-DECISION.md). The current Render staging environment remains synthetic-only because managed backup/PITR capability is not verified on the current Free plan.
 
 ## Story 2: Configure Monitoring and Alert Ownership
 
