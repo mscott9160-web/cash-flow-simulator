@@ -63,6 +63,8 @@ As the service owner, I need health, error, authentication, and database alerts 
 - Alert routing screenshot or exported settings.
 - Named owner and retention record.
 
+**Decision options:** See [OPERATIONS-INPUTS.md](OPERATIONS-INPUTS.md) for monitoring provider, alert destination, retention, and service-scale choices.
+
 **Definition of done**
 
 A service failure produces an actionable alert with an owner and a runbook link.

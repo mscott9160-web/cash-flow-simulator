@@ -150,6 +150,8 @@ The monitoring and alerting requirements are documented in [docs/OBSERVABILITY.m
 
 The current backup/PITR posture is documented in [docs/OPERATIONS-DECISION.md](docs/OPERATIONS-DECISION.md): staging remains synthetic-only until managed recovery is approved and verified.
 
+The remaining provider and owner choices are listed with recommended defaults in [docs/OPERATIONS-INPUTS.md](docs/OPERATIONS-INPUTS.md).
+
 GitHub Actions also runs a scheduled staging smoke check every 30 minutes for the API liveness/readiness endpoints and web origin. It can be started manually from the Actions tab with the `Staging Health` workflow.
 
 ## Deploy Staging To Render
