@@ -127,7 +127,7 @@ A real-data tester can identify the operator, support path, retention policy, ex
 
 **Owner:** Mobile owner + QA
 **Priority:** High for broader mobile distribution
-**Status:** Ready after staging remains healthy
+**Status:** Deferred: no Android device/account available
 
 **Story**
 
@@ -151,11 +151,15 @@ As an Android tester, I need the internal build to work away from the developer 
 
 A physical Android tester can complete the critical workflow against the hosted staging API.
 
+**Deferral note**
+
+The internal Android build is complete and available, but physical-device execution is deferred until an Android device and account are available. This does not block the approved portfolio, synthetic-staging, or internal-iOS audiences.
+
 ## Story 6: Prepare TestFlight and App Store Metadata
 
 **Owner:** Product owner + mobile owner
 **Priority:** Medium until public distribution is approved
-**Status:** Deferred until Stories 1-5 are accepted
+**Status:** Deferred: public distribution not approved
 
 **Story**
 

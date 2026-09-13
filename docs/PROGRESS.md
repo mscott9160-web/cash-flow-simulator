@@ -71,6 +71,7 @@ See [docs/DECISIONS.md](DECISIONS.md) for the rationale, acceptance criteria, an
 - Mobile: Expo Doctor `21/21` checks passing.
 - Mobile: web, iOS, and Android exports passing.
 - Mobile: EAS iOS staging build finished and physical-device acceptance passed on 2026-09-12, including authentication, projection, bill flexibility, optimizer Apply/Undo, Settings/export/delete, retry, and session persistence.
+- Mobile: Android staging APK build finished on 2026-09-12; physical Android validation is deferred because no Android device/account is currently available.
 - Database: fresh Alembic baseline migration passing.
 - Operations: SQLite backup/restore smoke test passing; PostgreSQL backup/restore rehearsal runbook published.
 - Dependencies: web and Python production audits report no known vulnerabilities; mobile transitive findings are documented without an Expo-breaking force downgrade.
@@ -94,7 +95,7 @@ See [docs/DECISIONS.md](DECISIONS.md) for the rationale, acceptance criteria, an
 
 1. Keep the stable portfolio deployment available for review and synthetic staging use.
 2. Decide whether to fund Render-managed backup/PITR and configure hosted alert ownership.
-3. Complete Android/TestFlight release work only if public or broader internal distribution is desired.
+3. Complete Android/TestFlight release work only if public or broader internal distribution is desired and the required devices/accounts are available.
 
 ## Staging Preparation Checkpoint
 
