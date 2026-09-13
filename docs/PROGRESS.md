@@ -27,7 +27,7 @@ A daily cash-flow simulator that identifies negative-balance days and searches f
 | 4. Mobile product workflow | Complete | Expo SDK 57 development client, projection, item management, optimizer Apply/Undo |
 | 5. Automated quality gates | Complete | Backend tests, Playwright E2E, web lint/build, mobile typecheck/Expo Doctor/export |
 | 6. Production persistence | Decided for current audience | PostgreSQL 18 backup/restore rehearsal passed locally; staging remains synthetic-only until Render-managed backup/PITR is approved |
-| 7. Production operations | In progress | Request IDs, safe logs, auth rate limiting, PostgreSQL rehearsal runbook, dependency audit, policy/support drafts, observability runbook, and scheduled staging health checks; hosted alert ownership remains |
+| 7. Production operations | Decided for current audience | Render + GitHub Actions monitoring, one API instance, 7-day redacted retention, owner-email alerting, auth rate limiting, and scheduled health checks; provider drill remains |
 | 8. Public release | Deferred | App Store/TestFlight metadata, public demo decision, and provider-level production controls |
 
 ## Approved Release Audience
@@ -127,6 +127,7 @@ npm run e2e:staging
 
 - Hosted PostgreSQL backup/restore rehearsal passed against a local PostgreSQL 18 restore target; managed backup policy verification remains provider-dependent.
 - Operations decision: current Render Free-plan staging remains synthetic-only; see [OPERATIONS-DECISION.md](OPERATIONS-DECISION.md).
+- Monitoring decision: Render + GitHub Actions, one API instance, 7-day retention, no request bodies, owner-private-email alerts; see [OPERATIONS-INPUTS.md](OPERATIONS-INPUTS.md).
 - Confirm whether Render runs one or multiple API instances; process-local rate limiting is only sufficient for one instance.
 - Deployment observability and alerting integration.
 - Mobile dependency audit review without downgrading Expo SDK 57.

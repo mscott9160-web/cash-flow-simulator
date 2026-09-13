@@ -1,6 +1,6 @@
 # Observability and Alerting Runbook
 
-**Status:** Configuration and failure drill required before invited real-data testing.
+**Status:** Repository configuration complete for synthetic staging; provider notification setup and failure drill remain.
 **Last updated:** 2026-09-11
 
 ## Service Checks
@@ -51,3 +51,13 @@ Do not induce failures in a production database or expose credentials in monitor
 ## Render Configuration Inputs
 
 Render dashboard access is required to configure log retention, service notifications, database backup alerts, uptime monitoring, and team access. These settings are intentionally not encoded in `render.yaml` because provider credentials, recipients, and retention choices are owner-controlled inputs.
+
+## Selected Current Posture
+
+- Render plus GitHub Actions scheduled health checks.
+- One API instance.
+- Owner private email as the alert destination.
+- Seven-day retention.
+- No request-body capture.
+
+This posture is sufficient for the approved portfolio and synthetic-staging audience. It is not a substitute for public-production monitoring ownership.

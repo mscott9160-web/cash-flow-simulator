@@ -41,7 +41,7 @@ See [OPERATIONS-DECISION.md](OPERATIONS-DECISION.md). The current Render staging
 
 **Owner:** Technical lead + operations owner
 **Priority:** Critical
-**Status:** Ready to start
+**Status:** Decided for current audience; provider setup remains
 
 **Story**
 
@@ -68,6 +68,10 @@ As the service owner, I need health, error, authentication, and database alerts 
 **Definition of done**
 
 A service failure produces an actionable alert with an owner and a runbook link.
+
+**Selected posture**
+
+Render plus GitHub Actions, one API instance, seven-day retention, no request-body capture, and owner-private-email alerting. Complete the Render notification settings and synthetic failure drill before real-data use.
 
 ## Story 3: Run the Synthetic Staging Failure Drill
 

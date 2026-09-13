@@ -12,7 +12,7 @@ Options:
 - **B: Add an external uptime provider.** Better independent monitoring for `/health`, `/ready`, and the web origin. Requires selecting a provider and notification destination.
 - **C: Add hosted error tracking.** Best for public production diagnosis. Requires a provider, DSN/configuration, redaction review, and retention decision.
 
-Decision needed: `A`, `B`, or `C`.
+**Selected:** `A` - Render health checks plus GitHub Actions scheduled staging health checks. External uptime and hosted error tracking are deferred until public production is approved.
 
 ## 2. Alert Owner and Destination
 
@@ -24,7 +24,7 @@ Options:
 - **B: Owner email plus technical backup.** Recommended for invited testers.
 - **C: Team channel plus email escalation.** Recommended for public production.
 
-Decision needed: owner name, destination, and backup contact. Do not record credentials here.
+**Selected:** owner email only. The address is configured privately in the provider account and is intentionally not recorded in the repository. A backup contact is deferred while the environment remains portfolio/staging only.
 
 ## 3. Log and Alert Retention
 
@@ -36,7 +36,7 @@ Options:
 - **B: 30 days.** Better for invited testers and incident investigation.
 - **C: 90 days or provider default.** Only after privacy/legal review.
 
-Decision needed: log retention, error-event retention, and alert-history retention.
+**Selected:** 7 days for logs, error events, and alert history, with no request-body capture. Exact provider toggles remain a manual Render configuration step.
 
 ## 4. Render Service Scale
 
@@ -48,7 +48,7 @@ Options:
 - **B: Multiple instances with edge/WAF rate limiting.** Required before horizontal scaling.
 - **C: Multiple instances with a shared rate-limit store.** Stronger control but adds infrastructure.
 
-Decision needed: keep one instance or fund distributed rate limiting before scaling.
+**Selected:** one API instance. Do not scale horizontally until shared or edge rate limiting is funded and tested.
 
 ## 5. Policy Owner Details
 

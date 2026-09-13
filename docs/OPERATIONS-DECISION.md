@@ -38,3 +38,13 @@ Before real-data use, record:
 - Internal iOS testing remains approved with fictional data.
 - Real financial data and broad public production remain blocked.
 - The team can defer paid Render recovery costs until there is a clear need for real-data testing or public production.
+
+## Monitoring Decisions
+
+- Provider: Render health checks plus the repository's scheduled GitHub Actions staging health workflow.
+- Alert destination: the owner's private email configured in the provider account; the address is not stored in Git.
+- Retention: 7 days for logs, error events, and alert history.
+- Capture policy: no request-body capture; do not retain passwords, bearer tokens, database URLs, email addresses, financial amounts, or export payloads.
+- API scale: one instance. The current process-local auth limiter is not approved for horizontal scaling.
+
+Render notification toggles, email routing, retention controls, and the staging failure drill remain manual dashboard actions.
