@@ -28,6 +28,8 @@ jobs:
         run: npm audit --omit=dev --audit-level=high
       - name: Lint web
         run: npm run lint
+      - name: Check web formatting
+        run: npm run format:check
       - name: Build web
         run: npm run build
       - name: Install Playwright Chromium
@@ -48,6 +50,8 @@ jobs:
           cache-dependency-path: mobile/package-lock.json
       - name: Install mobile dependencies
         run: npm ci
+      - name: Check mobile formatting
+        run: npm run format:check
       - name: Typecheck mobile
         run: npm run typecheck
       - name: Check Expo project
