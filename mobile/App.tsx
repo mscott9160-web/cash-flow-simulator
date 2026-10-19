@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState, type ComponentProps } from "react";
 import ReactNative from "react-native";
 // React Native 0.86.3's strict export map omits these runtime barrel exports.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const {
   ActivityIndicator,
   Alert,
@@ -17,7 +16,7 @@ const {
   Text,
   TextInput,
   View,
-} = ReactNative as unknown as Record<string, any>;
+} = ReactNative as unknown as typeof import("react-native");
 
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -1647,6 +1646,7 @@ const styles = StyleSheet.create({
   },
   segmented: { flexDirection: "row", borderWidth: 1, borderColor: "#C9C9BD", marginBottom: 20 },
   choiceRow: { gap: 8, paddingBottom: 19 },
+  windowFields: { flexDirection: "row", gap: 12 },
   choice: { borderWidth: 1, borderColor: "#C9C9BD", paddingHorizontal: 12, paddingVertical: 10 },
   choiceSelected: { backgroundColor: color.green, borderColor: color.green },
   choiceText: { color: color.muted, fontSize: 11, fontWeight: "700" },
