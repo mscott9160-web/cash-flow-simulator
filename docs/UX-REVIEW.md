@@ -1,6 +1,6 @@
 # UI/UX Review
 
-**Reviewer:** Maya Chen, UI/UX Designer  
+**Reviewer:** Maya Chen, AI agent persona acting as UI/UX Designer  
 **Reviewed:** 2026-08-25  
 **Surfaces:** React web client and Expo mobile client
 

@@ -10,14 +10,14 @@
 | Tech Lead | Devon | Owns architecture and technical strategy |
 | Backend Developer | Atlas | Builds APIs, persistence, and server logic |
 | Frontend Developer | Luna | Builds web/mobile UI and client workflows |
-| UI/UX Designer | Maya Chen | Owns information architecture, visual systems, accessibility, and interaction quality |
+| UI/UX Designer | Maya Chen (AI agent persona) | Owns information architecture, visual systems, accessibility, and interaction quality |
 | Early Consumer | Casey | Validates real-world usability and customer trust |
 | QA Tester | Sage | Owns test strategy, automation, and quality gates |
 | Team Lead | Jordan | Oversees delivery capacity, priorities, and dependencies |
 
-## Maya Chen
+## Maya Chen (AI Agent Persona)
 
-Maya is available across projects through the user-level agent:
+Maya is an AI agent persona available across projects through the user-level agent:
 
 `maya-chen-ui-ux-designer.agent.md`
 
